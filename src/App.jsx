@@ -22,6 +22,7 @@ import UserCard from "./components/UserCard";
 import DraftPoll from "./components/DraftPoll";
 import PollDetails from "./components/PollDetails";
 import AboutUs from "./components/AboutUs";
+import MyFriends from "./components/MyFriends";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -172,6 +173,7 @@ const App = () => {
           {/* User/Friends routes */}
           <Route path="/users" element={<UsersPage />} />
           <Route path="/search-friends" element={<PublicUserFinder currentUser={user} />} />
+          <Route path="/my-friends" element={<MyFriends user={user}/>} />
           
           {/* Other pages */}
           <Route path="/about-us" element={<AboutUs />} />
