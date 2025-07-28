@@ -119,6 +119,7 @@ const PollList = ({ user }) => {
   });
 
   return (
+
     <Container className="py-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>All Polls</h2>
@@ -192,6 +193,7 @@ const PollList = ({ user }) => {
           ))}
         </Row>
       )}
+
       {/* Footer info */}
       {filteredPolls.length > 0 && (
         <div className="text-center mt-5">
@@ -199,6 +201,7 @@ const PollList = ({ user }) => {
             Showing {filteredPolls.length} of {polls.length} published polls
           </small>
         </div>
+
       )}
     </Container>
   );

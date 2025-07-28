@@ -72,6 +72,7 @@ const PollCard = ({ poll, onClick, onDuplicate, showDuplicateButton = true }) =>
       console.log("No link to copy");
     }
   };
+
   const creator = poll.creator || poll.Creator || null;
   const creatorUsername = creator?.username || "Unknown";
 
@@ -133,6 +134,19 @@ const PollCard = ({ poll, onClick, onDuplicate, showDuplicateButton = true }) =>
                 </Button>
               </Col>
             )}
+            <Col xs="auto">
+              <Button
+                className="but-color"
+                size="sm"
+                variant="outline-secondary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDuplicate();
+                }}
+              >
+                Duplicate
+              </Button>
+            </Col>
             <Col xs="auto">
               <Button
                 className="but-color"

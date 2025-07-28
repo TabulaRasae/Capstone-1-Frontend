@@ -181,7 +181,6 @@ const App = () => {
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/admin/users" element={<UsersPage user={user} />} />
           <Route path="/admin/polls" element={<AdminPolls user={user} />} />
-          
           {/* 404 route - must be last */}
           <Route path="*" element={<NotFound />} />
         </Routes>
