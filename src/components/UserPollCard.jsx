@@ -3,7 +3,6 @@ import './CSS/UserPollCardStyles.css';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Card, Button, Badge, Spinner, Stack, Row, Col } from "react-bootstrap";
-import { API_URL } from "../shared"; 
 
 const PollCard = ({ poll, onClick, onDelete }) => {
   const [timeLeft, setTimeLeft] = useState('');
@@ -20,7 +19,7 @@ const PollCard = ({ poll, onClick, onDelete }) => {
       }
 
       const now = new Date();
-      const endTime = new Date(poll.endAt); 
+      const endTime = new Date(poll.endAt);
       const difference = endTime - now;
 
       if (difference > 0) {
@@ -43,16 +42,15 @@ const PollCard = ({ poll, onClick, onDelete }) => {
     };
 
     calculateTimeLeft();
-    const timer = setInterval(calculateTimeLeft, 60000); 
+    const timer = setInterval(calculateTimeLeft, 60000);
 
     return () => clearInterval(timer);
-  }, [poll.endAt]); 
+  }, [poll.endAt]);
 
   useEffect(() => {
     const fetchCreator = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/users/${poll.creator_id}`);
-        
+        const response = await fetch(`http://localhost:8080/api/users/${poll.creator_id}`);
         if (response.ok) {
           const userData = await response.json();
           setCreator(userData);
@@ -62,7 +60,7 @@ const PollCard = ({ poll, onClick, onDelete }) => {
         }
       } catch (error) {
         console.error('Error fetching creator:', error);
-        setCreator({ username: 'Unknown' }); 
+        setCreator({ username: 'Unknown' });
       }
     };
 
@@ -71,7 +69,8 @@ const PollCard = ({ poll, onClick, onDelete }) => {
     }
   }, [poll.creator_id]);
 
-  const isPollActive = poll.endAt ? new Date(poll.endAt) > new Date() : true; 
+  const isPollActive = poll.endAt ? new Date(poll.endAt) > new Date() : true;
+
   const handleDelete = (e) => {
     e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this poll?")) {
@@ -79,8 +78,8 @@ const PollCard = ({ poll, onClick, onDelete }) => {
     }
   };
 
-  if(!poll){
-    return(
+  if (!poll) {
+    return (
       <div>
         <h1>No polls made yet</h1>
       </div>
@@ -88,10 +87,10 @@ const PollCard = ({ poll, onClick, onDelete }) => {
   };
 
   const copyToClipboard = async (e) => {
-    e.stopPropagation(); 
-   
+    e.stopPropagation();
+
     const pollUrl = `${window.location.origin}/polls/${poll.id}`;
-  
+
     try {
       await navigator.clipboard.writeText(pollUrl);
       setCopied(true);
@@ -105,7 +104,7 @@ const PollCard = ({ poll, onClick, onDelete }) => {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-    
+
       setCopied(true);
       setTimeout(() => {
         setCopied(false);
@@ -114,49 +113,60 @@ const PollCard = ({ poll, onClick, onDelete }) => {
   };
 
   return (
-    <div 
-      className={`user-poll-card ${!isPollActive ? 'poll-ended' : ''}`}
-      onClick={onClick} 
-      style={{ cursor: 'pointer' }} 
+    <Card
+      onClick={onClick}
+      className={`user-poll-card h-100 ${!isPollActive ? 'poll-ended' : ''}`}
+      style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', backgroundColor: "#275068" }}
     >
-      <div className="poll-header">
-        <h3 className="poll-title">{poll.title}</h3>
-        <button
-          className={`copy-btn ${copied ? 'copied' : ''}`}
-          onClick={copyToClipboard}
-          title="Copy poll link"
-        >
-          {copied ? (
-            <span className="copy-feedback">
-              ✓ Copied!
-            </span>
-          ) : (
-            <span className="copy-icon">
-              📋 Copy Link
-            </span>
-          )}
-        </button>
-        <div className="poll-meta">
-          <span className={`poll-time ${!isPollActive ? 'ended' : ''}`}>
-            {timeLeft}
-          </span>
-        </div>
-      </div>
-      
-      {poll.description && (
-        <div className="poll-description">
-          <p>{poll.description}</p>
-        </div>
-      )}
+      <Card.Body className="d-flex flex-column flex-grow-1">
+        <Card.Title className="mb-2 custom-title-color">{poll.title}</Card.Title>
 
-      <button onClick={handleDelete}>Delete</button>
-      
-      {!isPollActive && (
-        <div className="poll-status">
-          <span className="status-badge">Ended</span>
-        </div>
-      )}
-    </div>
+        {poll.description ? (
+          <Card.Text className="flex-grow-1" style={{ minHeight: '50px', overflow: 'hidden' }}>
+            {poll.description}
+          </Card.Text>
+        ) : (
+          <div className="flex-grow-1" />
+        )}
+        <Row className="mt-auto align-items-end">
+          <Col xs="auto">
+            <Stack gap={2} className="align-items-start">
+              <Badge bg={isPollActive ? 'primary' : 'danger'} className="live-badge">
+                {isPollActive ? 'Live' : 'Ended'}
+              </Badge>
+              <small className={!isPollActive ? "text-danger" : "text-primary"}>
+                {timeLeft}
+              </small>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(e);
+                }}
+                style={{ minWidth: '75px' }}
+              >
+                Delete
+              </Button>
+            </Stack>
+          </Col>
+          <Col xs="auto" className="ms-auto">
+            <Button
+              className="but-color"
+              variant="outline-secondary"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                copyToClipboard(e);
+              }}
+              style={{ minWidth: '90px' }}
+            >
+              {copied ? '✓ Copied!' : '📋 Copy Link'}
+            </Button>
+          </Col>
+        </Row>
+      </Card.Body>
+    </Card>
   );
 };
 
