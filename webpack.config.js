@@ -13,10 +13,10 @@ module.exports = {
   devtool: "source-map",
   plugins: [
     new webpack.EnvironmentPlugin({
-      API_URL: "http://localhost:8080",
-      REACT_APP_AUTH0_DOMAIN: "dev-0123456789012345.us.auth0.com",
-      REACT_APP_AUTH0_CLIENT_ID: "0123456789012345",
-      REACT_APP_AUTH0_AUDIENCE: "http://localhost:8080",
+      API_URL: process.env.API_URL || "https://capstone-1-backend-indol.vercel.app",
+      REACT_APP_AUTH0_DOMAIN: process.env.REACT_APP_AUTH0_DOMAIN || "franccesco.us.auth0.com",
+      REACT_APP_AUTH0_CLIENT_ID: process.env.REACT_APP_AUTH0_CLIENT_ID || "YVI08TG7FVmUomdxAYaLjyYzLBaMXlt5",
+      REACT_APP_AUTH0_AUDIENCE: process.env.REACT_APP_AUTH0_AUDIENCE || "https://franccesco.us.auth0.com/api/v2/",
     }),
   ],
   module: {
