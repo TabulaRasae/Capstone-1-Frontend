@@ -25,8 +25,8 @@ const NavBar = ({ user, onLogout }) => {
                 <Nav.Link as={Link} to="/me" className="brand-text me-2" onClick={() => setExpanded(false)}>Profile</Nav.Link>
                 {user.role === "admin" && (
                   <>
-                  <Nav.Link as={Link} to="/admin/users" className="me-2">Admin Users</Nav.Link>
-                  <Nav.Link as={Link} to="/admin/polls" className="me-2">Admin Polls</Nav.Link>
+                  <Nav.Link as={Link} to="/admin/users" className="brand-text me-2">Admin Users</Nav.Link>
+                  <Nav.Link as={Link} to="/admin/polls" className="brand-text me-2">Admin Polls</Nav.Link>
                   </>
                 )}
 
