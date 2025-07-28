@@ -8,6 +8,7 @@
 }
 
 .but-color:hover {
+  background-color: #16665b !important;  
   color: #041B15 !important;
 }
 

@@ -23,13 +23,10 @@ const PollList = ({ user }) => {
 
   const duplicatePoll = async (pollToDuplicate) => {
     try {
-      // Check if user is logged in
       if (!user) {
         alert("Please log in to duplicate polls");
         return;
       }
-
-      // Create the draft poll data
       const draftPollData = {
         creator_id: user.id,
         title: `${pollToDuplicate.title} (Copy)`,
@@ -38,18 +35,16 @@ const PollList = ({ user }) => {
         status: "draft",
         viewRestriction: pollToDuplicate.viewRestriction || "public",
         voteRestriction: pollToDuplicate.voteRestriction || "public",
-        customViewUsers: [], // Reset custom permissions for the copy
-        customVoteUsers: [], // Reset custom permissions for the copy
+        customViewUsers: [], 
+        customVoteUsers: [], 
         endAt: pollToDuplicate.endAt || null,
         pollOptions: (pollToDuplicate.pollOptions || pollToDuplicate.PollOptions || []).map((option, index) => ({
           text: option.text,
           position: index + 1,
         })),
       };
-
       console.log("Creating duplicate poll with data:", draftPollData);
 
-      // Create the draft poll
       const response = await axios.post(`${API_URL}/api/polls`, draftPollData, {
         headers: getAuthHeaders()
       });
@@ -57,7 +52,6 @@ const PollList = ({ user }) => {
       const newDraftId = response.data.id;
       console.log("Draft created with ID:", newDraftId);
 
-      // Navigate to edit the draft
       navigate(`/edit-draft/${newDraftId}`);
 
     } catch (error) {
@@ -83,7 +77,6 @@ const PollList = ({ user }) => {
         
         const response = await axios.get(`${API_URL}/api/polls`, { headers });
         
-        // Filter to only show published polls
         const publishedPolls = response.data.filter(poll => poll.status === "published");
         
         setPolls(publishedPolls);
@@ -94,7 +87,7 @@ const PollList = ({ user }) => {
         setLoading(false);
       }
     };
-    
+  
     fetchPolls();
   }, []);
 
@@ -133,7 +126,6 @@ const PollList = ({ user }) => {
           {polls.length} published poll{polls.length !== 1 ? 's' : ''}
         </div>
       </div>
-
       <Form.Group className="mb-4">
         <Form.Control 
           className="shadow-sm rounded"
@@ -194,13 +186,12 @@ const PollList = ({ user }) => {
                 poll={poll} 
                 onClick={() => handleUserClick(poll.id)} 
                 onDuplicate={() => duplicatePoll(poll)}
-                showDuplicateButton={!!user} // Only show duplicate button if user is logged in
+                showDuplicateButton={!!user} 
               />
             </Col>
           ))}
         </Row>
       )}
-
       {/* Footer info */}
       {filteredPolls.length > 0 && (
         <div className="text-center mt-5">

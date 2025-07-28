@@ -6,6 +6,18 @@
   width: 100%;
 }
 
+.text-color {
+  color: #041B15 !important;
+}
+
+.bg-color {
+  background-color: #E7ECEF !important;
+}
+
+.bg-colors {
+  background-color: #275068 !important;
+}
+
 .poll-header {
   margin-bottom: 16px;
 }
@@ -50,7 +62,7 @@
   width: 100%;
   box-sizing: border-box;
   padding: 16px;
-  background-color: #f9f9f9;
+  background-color: #275068 !important;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }

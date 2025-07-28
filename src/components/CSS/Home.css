@@ -1,5 +1,5 @@
 .block {
-  background-color: #5F464B;
+  background-color: #5F464B !important;
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -15,5 +15,6 @@
 }
 
 .but-color:hover {
+  background-color: #16665b !important;  
   color: #041B15 !important;
 }

@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import UserPollCard from "./UserPollCard";
 import EditProfile from "./EditProfile"; 
+import { Container, Row, Col, Form, Spinner, Alert, Card, Button } from "react-bootstrap";
 
 const ProfilePage = ({ user, authLoading }) => {
   const [master, setMaster] = useState(null);
@@ -108,7 +109,8 @@ const ProfilePage = ({ user, authLoading }) => {
     return (
       <div className="profile-page">
         <div className="loading-container">
-          <p>Loading...</p>
+          <p>Loading</p>
+          <Spinner animation="border" size="sm"/>
         </div>
       </div>
     );
@@ -118,7 +120,8 @@ const ProfilePage = ({ user, authLoading }) => {
     return (
       <div className="profile-page">
         <div className="loading-container">
-          <p>Redirecting to login...</p>
+          <p>Redirecting to login</p>
+          <Spinner animation="border" size="sm"/>
         </div>
       </div>
     );
@@ -128,7 +131,8 @@ const ProfilePage = ({ user, authLoading }) => {
     return (
       <div className="profile-page">
         <div className="loading-container">
-          <p>Loading profile...</p>
+          <p>Loading profile</p>
+          <Spinner animation="border" size="sm"/>
         </div>
       </div>
     );
@@ -156,10 +160,10 @@ const ProfilePage = ({ user, authLoading }) => {
 
   return (
     <>
-    <div className="profile-wrapper">
-            <div className="profile-page">
-        <div className="profile-header">
-          <div className="profile-picture">
+    <Container className="profile-wrapper">
+      <Container className="block profile-page">
+        <Row className="block profile-header">
+          <Col className="profile-picture">
             <img
               src={
                 master.imageUrl ||
@@ -168,65 +172,78 @@ const ProfilePage = ({ user, authLoading }) => {
               alt={`${master.username}'s profile`}
               className="profile-img"
             />
-          </div>
-
-          <div className="profile-info">
-            <h1 className="display-name">{master.username}</h1>
+          </Col>
+        </Row>
+          <Row className="profile-info text-center">
+            <Col className="justify-content-center">
+            <h1 className="text-color display-name">{master.username}</h1>
             <p className="username">@{master.username}</p>
+            </Col>
+          </Row>
 
-            <div className="stats">
-              <div className="stat-item">
-                <span className="stat-count">
-                  {polls ? polls.length : 0}
-                </span>
-                <span className="stat-label">Polls</span>
-              </div>
-              
-              <button 
-                className="stat-item clickable-stat stat-button" 
-                onClick={handleShowFollowers}
-                type="button"
-              >
-                <span className="stat-count">{followers.length || 0}</span>
-                <span className="stat-label">Followers</span>
-              </button>
-              
-              <button 
-                className="stat-item clickable-stat stat-button" 
-                onClick={handleShowFollowing}
-                type="button"
-              >
-                <span className="stat-count">{following.length || 0}</span>
-                <span className="stat-label">Following</span>
-              </button>
-            </div>
+            <Row className="stats justify-content-center">
+  <Col xs="auto" md="auto">
+    <button className="stat-item stat-button" type="button" disabled>
+      <span className="stat-count">{polls?.length || 0}</span>
+      <span className="text-color stat-label">Polls</span>
+    </button>
+  </Col>
+
+  <Col xs="auto" md="auto">
+    <button
+      className="stat-item stat-button"
+      onClick={handleShowFollowers}
+      type="button"
+    >
+      <span className="stat-count">{followers.length || 0}</span>
+      <span className="text-color stat-label">Followers</span>
+    </button>
+  </Col>
+
+  <Col xs="auto" md="auto">
+    <button
+      className="stat-item stat-button"
+      onClick={handleShowFollowing}
+      type="button"
+    >
+      <span className="stat-count">{following.length || 0}</span>
+      <span className="text-color stat-label">Following</span>
+    </button>
+  </Col>
+</Row>
+
+
 
             {master.bio && <p className="bio">{master.bio}</p>}
 
             <div className="profile-actions">
-              <button onClick={() => handleDraftClick()} className="message-btn">
+              <Button className="but-color"
+          variant="outline-secondary"
+          size="md" onClick={() => handleDraftClick()}>
                 View Drafts
-              </button>
-              <button className="follow-btn" onClick={handleEditProfile}>
+              </Button>
+              <Button className="but-color"
+          variant="outline-secondary"
+          size="md" onClick={handleEditProfile}>
                 Edit Profile
-              </button>
+              </Button>
             </div>
-          </div>
-        </div>
+          </Container>
 
         {polls && polls.length > 0 && (
           <div className="user-polls-section">
-            <h2>My Polls ({polls.length})</h2>
-            <div className="polls-container">
-              {polls.map((poll) => (
-                <UserPollCard
-                  key={poll.id}
-                  poll={poll}
-                  onClick={() => handleUserClick(poll.id)}
-                  onDelete={handleDeletePoll}
-                />
-              ))}
-            </div>
+            <h2 className="text-color">My Polls ({polls.length})</h2>
+            <Row xs={1} sm={2} md={3} className="g-4">
+  {polls.map((poll) => (
+    <Col key={poll.id}>
+      <UserPollCard
+        poll={poll}
+        onClick={() => handleUserClick(poll.id)}
+        onDelete={handleDeletePoll}
+      />
+    </Col>
+  ))}
+</Row>
           </div>
         )}
 
@@ -237,14 +254,13 @@ const ProfilePage = ({ user, authLoading }) => {
             onCancel={handleCloseEditProfile}
           />
         )}
-      </div>
-    </div>
+    </Container>
 
       {showFollowers && (
         <div className="followers-modal-overlay" onClick={handleCloseModal}>
           <div className="followers-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Followers ({followers.length})</h3>
+              <h3 className="text-color">Followers ({followers.length})</h3>
               <button className="close-btn" onClick={handleCloseModal}>✕</button>
             </div>
             <div className="followers-list">

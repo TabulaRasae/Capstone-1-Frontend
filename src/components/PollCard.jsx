@@ -56,12 +56,12 @@ const PollCard = ({ poll, onClick, onDuplicate, showDuplicateButton = true }) =>
     poll.status !== "closed" &&
     poll.isActive &&
     (poll.endAt ? new Date(poll.endAt) > new Date() : true);
-  
+
   const copyToClipboard = async (e) => {
-    e.stopPropagation(); 
-    
+    e.stopPropagation();
+
     const pollUrl = `${window.location.origin}/polls/${poll.id}`;
-    
+
     try {
       await navigator.clipboard.writeText(pollUrl);
       setCopied(true);
@@ -72,37 +72,34 @@ const PollCard = ({ poll, onClick, onDuplicate, showDuplicateButton = true }) =>
       console.log("No link to copy");
     }
   };
-
-  // Get creator info from the poll object (included from backend)
-  // Handle different possible structures
   const creator = poll.creator || poll.Creator || null;
   const creatorUsername = creator?.username || "Unknown";
 
-  console.log("Poll object:", poll); // Debug log
-  console.log("Creator object:", creator); // Debug log
+  console.log("Poll object:", poll); 
+  console.log("Creator object:", creator); 
 
   return (
     <Card
-      className={`mb-4 shadow-sm ${!isPollActive ? "opacity-50" : ""}`}
+      className={`bg-colors mb-4 shadow-sm ${!isPollActive ? "opacity-75" : ""}`}
       onClick={onClick}
-      style={{ cursor: "pointer", height: "250px", overflow: "hidden" }}
+      style={{ cursor: "pointer", height: "250px", overflow: "hidden", backgroundColor: "#275068", background: "#275068 !important" }}
     >
       <Card.Body as={Stack} gap={3} className="d-flex flex-column h-100">
         <Stack gap={1}>
-          <Card.Title className="text-truncate">
+          <Card.Title className="text-color text-truncate">
             {poll.title}
           </Card.Title>
-          <Card.Text 
+          <Card.Text
             style={{
-              minHeight: "50px", 
-              maxHeight: "50px", 
-              overflow: "hidden", 
+              minHeight: "50px",
+              maxHeight: "50px",
+              overflow: "hidden",
               fontSize: "0.9rem",
+              color: "#041B15",
             }}>
             {poll.description}
           </Card.Text>
         </Stack>
-
         <Stack className="mt-auto" gap={2}>
           <Row className="justify-content-center mt-1">
             <Col className="text-end">
@@ -111,10 +108,9 @@ const PollCard = ({ poll, onClick, onDuplicate, showDuplicateButton = true }) =>
               </Badge>
             </Col>
           </Row>
-
-          <Row className="align-items-center">
-            <Col xs="auto" className="text-muted small">
-              by @{creatorUsername}
+          <Row className="align-itmes-center">
+            <Col xs="auto" className="text-color small">
+              by {creator ? `@${creator.username}` : <Spinner animation="border" size="sm" />}
             </Col>
             <Col className="text-end small">
               <small className={!isPollActive ? "text-danger" : "text-primary"}>
@@ -122,7 +118,6 @@ const PollCard = ({ poll, onClick, onDuplicate, showDuplicateButton = true }) =>
               </small>
             </Col>
           </Row>
-
           <Row className="justify-content-between">
             {showDuplicateButton && (
               <Col xs="auto">
@@ -139,9 +134,10 @@ const PollCard = ({ poll, onClick, onDuplicate, showDuplicateButton = true }) =>
               </Col>
             )}
             <Col xs="auto">
-              <Button 
-                variant="outline-secondary" 
-                size="sm" 
+              <Button
+                className="but-color"
+                variant="outline-secondary"
+                size="sm"
                 onClick={copyToClipboard}
               >
                 {copied ? "✓ Copied!" : "📋 Copy Link"}

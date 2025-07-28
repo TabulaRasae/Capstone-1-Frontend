@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './CSS/UserPollCardStyles.css';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Card, Button, Badge, Spinner, Stack, Row, Col } from "react-bootstrap";
 import { API_URL } from "../shared"; 
 
 const PollCard = ({ poll, onClick, onDelete }) => {
@@ -71,7 +72,6 @@ const PollCard = ({ poll, onClick, onDelete }) => {
   }, [poll.creator_id]);
 
   const isPollActive = poll.endAt ? new Date(poll.endAt) > new Date() : true; 
-
   const handleDelete = (e) => {
     e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this poll?")) {
@@ -86,12 +86,12 @@ const PollCard = ({ poll, onClick, onDelete }) => {
       </div>
     )
   };
-  
+
   const copyToClipboard = async (e) => {
     e.stopPropagation(); 
-    
+   
     const pollUrl = `${window.location.origin}/polls/${poll.id}`;
-    
+  
     try {
       await navigator.clipboard.writeText(pollUrl);
       setCopied(true);
@@ -105,7 +105,7 @@ const PollCard = ({ poll, onClick, onDelete }) => {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-      
+    
       setCopied(true);
       setTimeout(() => {
         setCopied(false);

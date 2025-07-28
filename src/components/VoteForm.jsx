@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { API_URL } from "../shared";
 import "./CSS/VoteFormStyles.css";
+import { Container, Row, Col, Form, Spinner, Alert, Card, Button } from "react-bootstrap";
 
 const VoteForm = ({ poll, user, onVoteSubmitted }) => {
   const [rankedOptions, setRankedOptions] = useState([]);
@@ -242,29 +243,32 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
 
       {/* Control Buttons */}
       <div className="vote-controls">
-        <button
+        <Button
+          variant="secondary"
           onClick={handleUndo}
           disabled={rankedOptions.length === 0 || submitting}
           className="undo-btn"
         >
           ↶ Undo Last Selection
-        </button>
+        </Button>
         
-        <button
+        <Button
+          variant="danger"
           onClick={resetVote}
           disabled={rankedOptions.length === 0 || submitting}
           className="reset-btn"
         >
           🗑️ Reset All
-        </button>
+        </Button>
         
-        <button
+        <Button
+          variant="secondary"
           onClick={submitVote}
           disabled={submitting || rankedOptions.length === 0}
           className="submit-vote-btn"
         >
           {submitting ? "Submitting..." : `Submit Vote (${rankedOptions.length} ranked)`}
-        </button>
+        </Button>
       </div>
     </div>
   );
