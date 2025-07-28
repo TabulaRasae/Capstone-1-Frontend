@@ -117,9 +117,9 @@ const NavBar = ({ user, onLogout }) => {
               </>
             ) : (
               <>
-                <Nav.Link as={Link} to="/poll-list" className="me-2" onClick={() => setExpanded(false)}>Public Polls</Nav.Link>
-                <Nav.Link as={Link} to="/login" className="me-2" onClick={() => setExpanded(false)}>Login</Nav.Link>
-                <Nav.Link as={Link} to="/signup" className="me-2" onClick={() => setExpanded(false)}>Sign Up</Nav.Link>
+                <Nav.Link as={Link} to="/poll-list" className="brand-text me-2" onClick={() => setExpanded(false)}>Public Polls</Nav.Link>
+                <Nav.Link as={Link} to="/login" className="brand-text me-2" onClick={() => setExpanded(false)}>Login</Nav.Link>
+                <Nav.Link as={Link} to="/signup" className="brand-text me-2" onClick={() => setExpanded(false)}>Sign Up</Nav.Link>
               </>
             )}
           </Nav>
