@@ -55,14 +55,15 @@ const Signup = ({ setUser, onAuth0Login }) => {
     setErrors({}); 
 
     try {
-      // Fixed: Changed from /auth/signup to /api/users/signup
-      const response = await axios.post(`${API_URL}/api/users/signup`, {
+      const response = await axios.post(`${API_URL}/auth/signup`, {
         username: formData.username,
         password: formData.password,
+      }, {
+        withCredentials: true,
       });
 
       console.log("Signup successful:", response.data);
-
+      
       if (response.data.token) {
         localStorage.setItem('token', response.data.token);
       }
@@ -112,7 +113,7 @@ const Signup = ({ setUser, onAuth0Login }) => {
     }
   };
 
-  const handleAuth0Signup = () => {
+    const handleAuth0Signup = () => {
     loginWithRedirect({
       authorizationParams: {
         screen_hint: "signup",
