@@ -3,6 +3,9 @@ import axios from "axios";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { API_URL } from "../shared";
 import UserSearchInput from "./UserSearchInput";
+import { Form, Button, Container, Row, Col, Card, ListGroup, Alert } from "react-bootstrap";
+import "./CSS/NewPoll.css";
+
 
 const DraftPoll = ({ user }) => {
   const { id } = useParams();
@@ -251,278 +254,236 @@ useEffect(() => {
         {drafts.length === 0 ? (
           <p>You don't have any saved drafts.</p>
         ) : (
-          <ul>
-            {drafts.map((draft) => (
-              <li key={draft.id}>
-                <Link to={`/edit-draft/${draft.id}`}>
-                  {draft.title || "(Untitled Draft)"}
-                </Link>
-                <button onClick={() => deleteDraft(draft.id)}>Delete draft</button>
-              </li>
-            ))}
-          </ul>
+          <ul className="list-unstyled">
+  {drafts.map((draft) => (
+    <li key={draft.id} className="d-flex align-items-center mb-2">
+      <Link to={`/edit-draft/${draft.id}`} className="draft-title-link text-decoration-none">
+        {draft.title || "(Untitled Draft)"}
+      </Link>
+      <Button
+        variant="danger"
+        size="sm"
+        className="ms-auto"
+        onClick={() => deleteDraft(draft.id)}
+      >
+        Delete
+      </Button>
+    </li>
+  ))}
+</ul>
+
         )}
       </div>
     );
   }
 
-  return (
-    <div className="new-poll-container">
-      <h1>Edit Drafted Poll</h1>
-      {error && <p className="error-message">{error}</p>}
-      
-      <form onSubmit={handlePublish}>
-        <div className="form-group">
-          <label htmlFor="title">Poll Title:</label>
-          <input
-            id="title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Enter your poll question"
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="description">Description (optional):</label>
-          <textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Add more details about your poll"
-            rows="3"
-          />
-        </div>
-
-        {/* View Restrictions */}
-        <div className="form-group">
-          <label>Who can view this poll?</label>
-          <div className="restriction-options">
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="viewRestriction"
-                value="public"
-                checked={viewRestriction === "public"}
-                onChange={(e) => setViewRestriction(e.target.value)}
-              />
-              Public (anyone with the link)
-            </label>
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="viewRestriction"
-                value="followers"
-                checked={viewRestriction === "followers"}
-                onChange={(e) => setViewRestriction(e.target.value)}
-              />
-              Followers only
-            </label>
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="viewRestriction"
-                value="friends"
-                checked={viewRestriction === "friends"}
-                onChange={(e) => setViewRestriction(e.target.value)}
-              />
-              Friends only (mutual followers)
-            </label>
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="viewRestriction"
-                value="custom"
-                checked={viewRestriction === "custom"}
-                onChange={(e) => setViewRestriction(e.target.value)}
-              />
-              Choose specific users
-            </label>
-          </div>
-
-          {viewRestriction === "custom" && (
-            <div className="custom-users-section">
-              <label>Search and select users who can view:</label>
-              <UserSearchInput
-                selectedUsers={customViewUsers}
-                onUsersChange={setCustomViewUsers}
-                placeholder="Search users by username..."
-                currentUser={user}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Vote Restrictions */}
-        <div className="form-group">
-          <label>Who can vote on this poll?</label>
-          <div className="restriction-options">
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="voteRestriction"
-                value="public"
-                checked={voteRestriction === "public"}
-                onChange={(e) => setVoteRestriction(e.target.value)}
-              />
-              Public (anyone who can view)
-            </label>
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="voteRestriction"
-                value="followers"
-                checked={voteRestriction === "followers"}
-                onChange={(e) => setVoteRestriction(e.target.value)}
-              />
-              Followers only
-            </label>
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="voteRestriction"
-                value="friends"
-                checked={voteRestriction === "friends"}
-                onChange={(e) => setVoteRestriction(e.target.value)}
-              />
-              Friends only (mutual followers)
-            </label>
-            <label className="radio-label">
-              <input
-                type="radio"
-                name="voteRestriction"
-                value="custom"
-                checked={voteRestriction === "custom"}
-                onChange={(e) => setVoteRestriction(e.target.value)}
-              />
-              Choose specific users
-            </label>
-          </div>
-
-          {voteRestriction === "custom" && (
-            <div className="custom-users-section">
-              <label>Search and select users who can vote:</label>
-              <UserSearchInput
-                selectedUsers={customVoteUsers}
-                onUsersChange={setCustomVoteUsers}
-                placeholder="Search users by username..."
-              />
-            </div>
-          )}
-        </div>
-
-        <div className="form-group">
-          <label>Poll Duration:</label>
-          
-          {isIndefinite ? (
-            <div className="indefinite-section">
-              <div className="indefinite-notice">
-                <span>📅 This poll will run indefinitely</span>
-              </div>
-              <button 
-                type="button" 
-                onClick={handleAddEndDate}
-                className="add-end-date-btn"
-              >
-                + Add end date
-              </button>
-            </div>
+ return (
+  <Container className="block2 new-poll-container py-4">
+    {!id ? (
+      <Container className="p-4 mb-4">
+          <h2 className="mb-4 text-color">My Draft Polls</h2>
+          {loading ? (
+            <p className="text-color">Loading drafts...</p>
+          ) : drafts.length === 0 ? (
+            <p className="text-color">You don't have any saved drafts.</p>
           ) : (
-            <div className="date-input-section">
-              <div className="date-input-header">
-                <label htmlFor="endDate">Poll End Date & Time:</label>
-                <button 
-                  type="button" 
-                  onClick={handleRemoveEndDate}
-                  className="remove-end-date-btn"
-                >
-                  Remove end date
-                </button>
-              </div>
-              <input
-                id="endDate"
-                type="datetime-local"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                min={getMinDateTime()}
-              />
-              <small>Poll must end at least 1 hour from now</small>
-            </div>
+            <ul className="list-unstyled">
+              {drafts.map((draft) => (
+                <li key={draft.id} className="d-flex justify-content-between align-items-center mb-2">
+                  <Link to={`/edit-draft/${draft.id}`} className="draft-title-link text-decoration-none text-color">
+                    {draft.title || "(Untitled Draft)"}
+                  </Link>
+                  <Button variant="danger" size="sm" onClick={() => deleteDraft(draft.id)}>
+                    Delete
+                  </Button>
+                </li>
+              ))}
+            </ul>
           )}
-        </div>
+        </Container>
+    ) : (
+      <>
+        <h1 className="mb-4 text-color">Edit Drafted Poll</h1>
+        {error && <Alert variant="danger" className="text-color">{error}</Alert>}
 
-        {voteRestriction === "public" && (
-          <div className="form-group">
-            <label className="checkbox-label">
-              <input
+        <Form onSubmit={handlePublish}>
+          <Form.Group className="mb-3" controlId="title">
+            <Form.Label className="text-color">Poll Title</Form.Label>
+            <Form.Control
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter your poll question"
+              required
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3" controlId="description">
+            <Form.Label className="text-color">Description (optional)</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Add more details about your poll"
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label className="text-color">Who can view this poll?</Form.Label>
+            {["public", "followers", "friends", "custom"].map((option) => (
+              <Form.Check
+                key={option}
+                type="radio"
+                label={<span className="text-color">{option.charAt(0).toUpperCase() + option.slice(1)}</span>}
+                name="viewRestriction"
+                value={option}
+                checked={viewRestriction === option}
+                onChange={(e) => setViewRestriction(e.target.value)}
+              />
+            ))}
+            {viewRestriction === "custom" && (
+              <div className="mt-2">
+                <Form.Label className="text-color">Choose specific users:</Form.Label>
+                <UserSearchInput
+                  selectedUsers={customViewUsers}
+                  onUsersChange={setCustomViewUsers}
+                  placeholder="Search users by username..."
+                />
+              </div>
+            )}
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label className="text-color">Who can vote on this poll?</Form.Label>
+            {["public", "followers", "friends", "custom"].map((option) => (
+              <Form.Check
+                key={option}
+                type="radio"
+                label={<span className="text-color">{option.charAt(0).toUpperCase() + option.slice(1)}</span>}
+                name="voteRestriction"
+                value={option}
+                checked={voteRestriction === option}
+                onChange={(e) => setVoteRestriction(e.target.value)}
+              />
+            ))}
+            {voteRestriction === "custom" && (
+              <div className="mt-2">
+                <Form.Label className="text-color">Choose specific users:</Form.Label>
+                <UserSearchInput
+                  selectedUsers={customVoteUsers}
+                  onUsersChange={setCustomVoteUsers}
+                  placeholder="Search users by username..."
+                />
+              </div>
+            )}
+          </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label className="text-color">Poll Duration</Form.Label>
+            {isIndefinite ? (
+              <div>
+                <div className="mb-2 text-muted text-color">📅 This poll will run indefinitely</div>
+                <Button className="but-color" variant="secondary" size="sm" onClick={handleAddEndDate}>
+                  + Add end date
+                </Button>
+              </div>
+            ) : (
+              <div>
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <Form.Label htmlFor="endDate" className="text-color">Poll End Date & Time:</Form.Label>
+                  <Button className="but-color" variant="secondary" size="sm" onClick={handleRemoveEndDate}>
+                    Remove end date
+                  </Button>
+                </div>
+                <Form.Control
+                  id="endDate"
+                  type="datetime-local"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  min={getMinDateTime()}
+                />
+                <Form.Text muted className="text-color">Poll must end at least 1 hour from now.</Form.Text>
+              </div>
+            )}
+          </Form.Group>
+
+          {voteRestriction === "public" && (
+            <Form.Group className="mb-3">
+              <Form.Check
                 type="checkbox"
+                label={<span className="text-color">Allow anonymous voting</span>}
                 checked={allowAnonymous}
                 onChange={(e) => setAllowAnonymous(e.target.checked)}
               />
-              Allow anonymous voting
-            </label>
-            <small>If checked, users can vote without logging in</small>
-          </div>
-        )}
+              <Form.Text muted className="text-color">
+                If checked, users can vote without logging in
+              </Form.Text>
+            </Form.Group>
+          )}
 
-        <div className="form-group">
-          <label>Poll Options:</label>
-          {options.map((option, index) => (
-            <div key={index} className="option-input">
-              <input 
-                type="text"
-                value={option}
-                onChange={(e) => handleOptionChange(index, e.target.value)}
-                placeholder={`Option ${index + 1}`}
-              />
-              {options.length > 2 && (
-                <button 
-                  type="button" 
-                  onClick={() => removeOptionField(index)}
-                  className="remove-option-btn"
-                >
-                  Remove
-                </button>
-              )}
+          <Form.Group className="mb-3">
+            <Form.Label className="text-color">Poll Options</Form.Label>
+            {options.map((opt, idx) => (
+              <div key={idx} className="d-flex align-items-center mb-2">
+                <Form.Control
+                  type="text"
+                  value={opt}
+                  placeholder={`Option ${idx + 1}`}
+                  onChange={(e) => handleOptionChange(idx, e.target.value)}
+                />
+                {options.length > 2 && (
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    className="ms-2"
+                    onClick={() => removeOptionField(idx)}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+            ))}
+            <Button className="but-color" variant="secondary" size="sm" onClick={addOptionField}>
+              + Add Option
+            </Button>
+          </Form.Group>
+
+          <div className="d-flex justify-content-between">
+            <Button
+              className="but-color"
+              variant="secondary"
+              onClick={() => navigate("/edit-draft")}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+
+            <div className="d-flex gap-2">
+              <Button
+                className="but-color"
+                variant="secondary"
+                onClick={handleSaveDraft}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Saving..." : "Save as Draft"}
+              </Button>
+              <Button
+                className="but-color"
+                variant="secondary"
+                type="submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Publishing..." : "Publish Draft"}
+              </Button>
             </div>
-          ))}
-          <button 
-            type="button" 
-            onClick={addOptionField}
-            className="add-option-btn"
-          >
-            + Add Option
-          </button>
-        </div>
+          </div>
+        </Form>
+      </>
+    )}
+  </Container>
+);
 
-        <div className="form-actions">
-          <button 
-            type="button" 
-            onClick={() => navigate("/edit-draft")}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </button>
-          <button 
-            type="button" 
-            onClick={handleSaveDraft}
-            className="save-draft-btn"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Saving..." : "Save Draft"}
-          </button>
-          <button 
-            type="submit" 
-            className="publish-poll-btn"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Publishing..." : "Publish Draft"}
-          </button>
-        </div>
-      </form>
-    </div>
-  );
 };
 
 export default DraftPoll;

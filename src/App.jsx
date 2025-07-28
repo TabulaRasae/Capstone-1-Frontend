@@ -176,7 +176,7 @@ const App = () => {
           <Route path="/my-friends" element={<MyFriends user={user}/>} />
           
           {/* Other pages */}
-          <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/AboutUs" element={<AboutUs />} />
           
           {/* 404 route - must be last */}
           <Route path="*" element={<NotFound />} />

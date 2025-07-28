@@ -81,12 +81,12 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
     poll.status !== "closed" &&
     poll.isActive &&
     (poll.endAt ? new Date(poll.endAt) > new Date() : true);
-  
+
   const copyToClipboard = async (e) => {
-    e.stopPropagation(); 
-    
+    e.stopPropagation();
+
     const pollUrl = `${window.location.origin}/polls/${poll.id}`;
-    
+
     try {
       await navigator.clipboard.writeText(pollUrl);
       setCopied(true);
@@ -97,41 +97,41 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
       console.log("No link to copy");
     }
   };
-    
+
 
   return (
     <Card
-      className={`mb-4 shadow-sm ${!isPollActive ? "opacity-50" : ""}`}
+      className={`bg-colors mb-4 shadow-sm ${!isPollActive ? "opacity-75" : ""}`}
       onClick={onClick}
-      style={{ cursor: "pointer", height: "250px", overflow: "hidden" }}
+      style={{ cursor: "pointer", height: "250px", overflow: "hidden", backgroundColor: "#275068", background: "#275068 !important" }}
     >
       <Card.Body as={Stack} gap={3} className="d-flex flex-column h-100">
         <Stack gap={1}>
-          <Card.Title className="text-truncate">
+          <Card.Title className="text-color text-truncate">
             {poll.title}
           </Card.Title>
-            <Card.Text 
-              style={{
-                minHeight: "50px", 
-                maxHeight: "50px", 
-                overflow: "hidden", 
-                fontSize: "0.9rem",
-              }}>
-              {poll.description}
-            </Card.Text>
+          <Card.Text
+            style={{
+              minHeight: "50px",
+              maxHeight: "50px",
+              overflow: "hidden",
+              fontSize: "0.9rem",
+              color: "#041B15",
+            }}>
+            {poll.description}
+          </Card.Text>
         </Stack>
-
         <Stack className="mt-auto" gap={2}>
-            <Row className="justify-content-center mt-1">
-              <Col className="text-end">
-                  <Badge bg={isPollActive ? "primary" : "danger"}>
-                    {isPollActive ? "Live" : "Ended"}
-                  </Badge>
-              </Col>
-            </Row>
+          <Row className="justify-content-center mt-1">
+            <Col className="text-end">
+              <Badge bg={isPollActive ? "primary" : "danger"}>
+                {isPollActive ? "Live" : "Ended"}
+              </Badge>
+            </Col>
+          </Row>
           <Row className="align-itmes-center">
-            <Col xs="auto" className="text-muted small">
-              by {creator ? `@${creator.username}` : <Spinner animation="border" size="sm"/>}
+            <Col xs="auto" className="text-color small">
+              by {creator ? `@${creator.username}` : <Spinner animation="border" size="sm" />}
             </Col>
             <Col className="text-end small">
               <small className={!isPollActive ? "text-danger" : "text-primary"}>
@@ -139,14 +139,14 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
               </small>
             </Col>
           </Row>
-
           <Row className="justify-content-between">
             <Col xs="auto">
-              <Button 
-                size="sm" 
-                variant="outline-secondary" 
+              <Button
+                className="but-color"
+                size="sm"
+                variant="outline-secondary"
                 onClick={(e) => {
-                  e.stopPropagation(); 
+                  e.stopPropagation();
                   onDuplicate();
                 }}
               >
@@ -154,17 +154,16 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
               </Button>
             </Col>
             <Col xs="auto">
-              <Button 
-                variant="outline-secondary" 
-                size="sm" 
+              <Button
+                className="but-color"
+                variant="outline-secondary"
+                size="sm"
                 onClick={copyToClipboard}
               >
                 {copied ? "✓ Copied!" : "📋 Copy Link"}
               </Button>
             </Col>
           </Row>
-
-
         </Stack>
       </Card.Body>
     </Card>
@@ -172,40 +171,3 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
 };
 
 export default PollCard;
-
-/*      <div className="poll-header">
-        <h3 className="poll-title">{poll.title}</h3>
-        <button
-          className={`copy-btn ${copied ? "copied" : ""}`}
-          onClick={copyToClipboard}
-          title="Copy poll link"
-        >
-          {copied ? (
-            <span className="copy-feedback">✓ Copied!</span>
-          ) : (
-            <span className="copy-icon">📋 Copy Link</span>
-          )}
-        </button>
-        <div className="poll-meta">
-          <span className="poll-creator">
-            by {creator ? `@${creator.username}` : "Loading..."}
-          </span>
-          <span className={`poll-time ${!isPollActive ? "ended" : ""}`}>
-            {timeLeft}
-          </span>
-        </div>
-      </div>
-
-      {poll.description && (
-        <div className="poll-description">
-          <p>{poll.description}</p>
-        </div>
-      )}
-
-      <button onClick={onDuplicate}>Duplicate</button>
-
-      {!isPollActive && (
-        <div className="poll-status">
-          <span className="status-badge">Ended</span>
-        </div>
-      )}*/ 

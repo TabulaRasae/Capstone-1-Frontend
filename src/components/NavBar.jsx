@@ -1,67 +1,112 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Navbar, Nav, Container, Dropdown, Button } from "react-bootstrap";
-import NavDropdown from "react-bootstrap/NavDropdown";
 import "./CSS/NavBarStyles.css";
 
 const NavBar = ({ user, onLogout }) => {
   const [pollsDropdownOpen, setPollsDropdownOpen] = useState(false);
-  
-  const handleDropdwonClick = () => {
-    setPollsDropdownOpen(false);
-    setTimeout(() => {
-      const dropdown = document.getElementById('polls-nav-dropdown');
-      if (dropdown) dropdown.blur();
-    }, 100);
-  }
+  const [friendsDropdownOpen, setFriendsDropdownOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
-return (
-    <Navbar bg="light" expand="md" className="mb-3">
+  return (
+    <Navbar expand="md" className="nav-bg" expanded={expanded}
+      onToggle={() => setExpanded((prev) => !prev)}>
       <Container>
-        <Navbar.Brand as={Link} to="/">Home</Navbar.Brand>
-        <Navbar.Toggle aria-controls="main-navbar-nav"/>
+        <Navbar.Brand className="image" href="/"><img src="https://i.ibb.co/SXnV5XZ7/pollster-logo.png" /></Navbar.Brand>
+        <Navbar.Brand className="brand-text-welcome" as={Link} to="/"><strong>Follster</strong></Navbar.Brand>
+        <Navbar.Toggle aria-controls="main-navbar-nav" />
         <Navbar.Collapse id="main-navbar-nav">
           <Nav className="ms-auto">
             {user ? (
               <>
-                <Navbar.Text className="me-4">
+                <Navbar.Text className="brand-text-welcome me-4">
                   Welcome, <strong>{user.username}</strong>!
                 </Navbar.Text>
-                <Nav.Link as={Link} to="/me" className="me-2">Profile</Nav.Link>
+                <Nav.Link as={Link} to="/me" className="brand-text me-2" onClick={() => setExpanded(false)}>Profile</Nav.Link>
                 {user.role === "admin" && (
-                  <Nav.Link as={Link} to="/users" className="me-2">Users</Nav.Link>
+                  <Nav.Link as={Link} to="/users" className="brand-text me-2" onClick={() => setExpanded(false)}>Users</Nav.Link>
                 )}
-                <Nav.Link as={Link} to="/search-friends" className="me-2">Find Friends</Nav.Link>
-                <Nav.Link as={Link} to="/my-friends" className="me-2">My Friends</Nav.Link>
 
                 <Dropdown
                   className="nav-item dropdown hover-dropdown me-2"
-                  onMouseEnter={() => setPollsDropdownOpen(true)}
-                  onMouseLeave={() => setPollsDropdownOpen(false)}
+                  onMouseEnter={() => window.innerWidth >= 768 && setPollsDropdownOpen(true)}
+                  onMouseLeave={() => window.innerWidth >= 768 && setPollsDropdownOpen(false)}
                   show={pollsDropdownOpen}
                 >
                   <Dropdown.Toggle
                     as="a"
-                    className="nav-link"
+                    className="brand-text nav-link"
                     href="#"
                     id="polls-nav-dropdown"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (window.innerWidth < 768) {
+                        setPollsDropdownOpen((prev) => !prev);
+                      }
+                    }}
                   >
                     Polls <span className={`arrow ${pollsDropdownOpen ? "rotate" : ""}`}>&#9662;</span>
                   </Dropdown.Toggle>
 
-                  <Dropdown.Menu>
-                    <Dropdown.Item as={Link} to="/new-poll" onClick={handleDropdwonClick}>Create Poll</Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/poll-list" onClick={handleDropdwonClick}>Poll List</Dropdown.Item>
-                    <Dropdown.Item as={Link} to="/edit-draft" onClick={handleDropdwonClick}>Drafted Polls</Dropdown.Item>
+                  <Dropdown.Menu
+                    onClick={() => {
+                      setPollsDropdownOpen(false);
+                      document.activeElement?.blur(); // fix mobile lingering focus
+                      setExpanded(false);
+                    }}
+                    className="nav-bg"
+                  >
+                    <Dropdown.Item as={Link} to="/new-poll" onClick={() => setExpanded(false)} className="brand-text">Create Poll</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/poll-list" onClick={() => setExpanded(false)} className="brand-text">Poll List</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/edit-draft" onClick={() => setExpanded(false)} className="brand-text">Drafted Polls</Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
+
+                <Dropdown
+                  className="nav-item dropdown hover-dropdown me-2"
+                  onMouseEnter={() => window.innerWidth >= 768 && setFriendsDropdownOpen(true)}
+                  onMouseLeave={() => window.innerWidth >= 768 && setFriendsDropdownOpen(false)}
+                  show={friendsDropdownOpen}
+                >
+                  <Dropdown.Toggle
+                    as="a"
+                    className="brand-text nav-link"
+                    href="#"
+                    id="friends-nav-dropdown"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (window.innerWidth < 768) {
+                        setFriendsDropdownOpen((prev) => !prev);
+                      }
+                    }}
+                  >
+                    Friends <span className={`arrow ${friendsDropdownOpen ? "rotate" : ""}`}>&#9662;</span>
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu
+                    onClick={() => {
+                      setFriendsDropdownOpen(false);
+                      document.activeElement?.blur();
+                      setExpanded(false);
+                    }}
+                    className="nav-bg"
+                  >
+                    <Dropdown.Item as={Link} to="/search-friends" className="brand-text me-2" onClick={() => setExpanded(false)}>Find Friends</Dropdown.Item>
+                    <Dropdown.Item as={Link} to="/my-friends" className="brand-text me-2" onClick={() => setExpanded(false)}>My Friends</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+
+                <Nav.Link as={Link} to="/AboutUs" className="brand-text me-2" onClick={() => setExpanded(false)}>About Us</Nav.Link>
 
                 <Nav.Item className="d-flex align-items-center">
                   <Button
                     variant="outline-danger"
                     size="sm"
                     className="ms-3"
-                    onClick={onLogout}
+                    onClick={() => {
+                      setExpanded(false);
+                      onLogout
+                    }}
                   >
                     Logout
                   </Button>
@@ -69,9 +114,9 @@ return (
               </>
             ) : (
               <>
-                <Nav.Link as={Link} to="/poll-list" className="me-2">Public Polls</Nav.Link>
-                <Nav.Link as={Link} to="/login" className="me-2">Login</Nav.Link>
-                <Nav.Link as={Link} to="/signup" className="me-2">Sign Up</Nav.Link>
+                <Nav.Link as={Link} to="/poll-list" className="me-2" onClick={() => setExpanded(false)}>Public Polls</Nav.Link>
+                <Nav.Link as={Link} to="/login" className="me-2" onClick={() => setExpanded(false)}>Login</Nav.Link>
+                <Nav.Link as={Link} to="/signup" className="me-2" onClick={() => setExpanded(false)}>Sign Up</Nav.Link>
               </>
             )}
           </Nav>

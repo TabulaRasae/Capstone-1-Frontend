@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../shared";
+import { Container, Form, InputGroup, Button, Row, Col, Card, Spinner } from "react-bootstrap";
 import './CSS/PublicUserFinderStyles.css';
 
 const PublicUserFinder = ({ user }) => {
@@ -28,18 +29,18 @@ const PublicUserFinder = ({ user }) => {
 
       setIsSearching(true);
       setHasSearched(true);
-      
+
       try {
         const response = await axios.get(
           `${API_URL}/api/polls/search/users?q=${encodeURIComponent(searchTerm)}`,
           { headers: getAuthHeaders() }
         );
-        
+
         // Filter out the current user from results
         const filteredResults = response.data.filter(
           searchUser => user ? searchUser.id !== user.id : true
         );
-        
+
         setSearchResults(filteredResults);
         setError(null);
       } catch (error) {
@@ -72,75 +73,87 @@ const PublicUserFinder = ({ user }) => {
     if (isSearching) {
       return <p className="status-message">Searching...</p>;
     }
-    
+
     if (searchTerm.length > 0 && searchTerm.length < 2) {
       return <p className="status-message">Type at least 2 characters to search</p>;
     }
-    
+
     if (!hasSearched && searchTerm.length === 0) {
       return <p className="status-message">Start typing to find users</p>;
     }
-    
+
     if (hasSearched && searchResults.length === 0 && searchTerm.length >= 2 && !error) {
       return <p className="status-message">No users found.</p>;
     }
-    
+
     if (error) {
       return <p className="status-message error-message">{error}</p>;
     }
-    
+
     // Return empty paragraph to maintain space
     return <p className="status-message">&nbsp;</p>;
   };
 
   return (
-    <div className="users-page">
-      <div className="users-page-header">
-        <h2>Find Users</h2>
-        
-        <div className="search-container">
-          <input
-            className="search-input"
+    <Container className="block py-4">
+      <h2 className="text-color text-center mb-4">Find Users</h2>
+
+      <Form className="mb-3">
+        <InputGroup className="mx-auto" style={{ maxWidth: "500px" }}>
+          <Form.Control
             type="text"
             placeholder="Search users by username..."
             value={searchTerm}
             onChange={handleSearchInputChange}
           />
-        </div>
-        
-        <div className="status-container">
-          {renderStatusMessage()}
-        </div>
+        </InputGroup>
+      </Form>
+
+      <div className="text-center mb-3">
+        {renderStatusMessage()}
       </div>
 
-      <div className="results-container">
-        {searchResults.length > 0 && !error && (
-          <ul className="user-list">
-            {searchResults.map((searchUser) => (
-              <li
-                key={searchUser.id}
-                className="user-card"
-                onClick={() => handleUserClick(searchUser.id)}
-              >
-                {searchUser.imageUrl && (
-                  <img src={searchUser.imageUrl} alt="profile" className="user-pfp" />
-                )}
-                {!searchUser.imageUrl && (
-                  <img 
-                    src="https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg" 
-                    alt="profile" 
-                    className="user-pfp" 
-                  />
-                )}
-                <p className="user-name">{searchUser.username}</p>
-                {searchUser.bio && <p className="user-bio">{searchUser.bio}</p>}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </div>
+      <Row className="justify-content-center">
+        {searchResults.length > 0 && !error && searchResults.map(searchUser => (
+          <Col
+            key={searchUser.id}
+            xs={12}
+            sm={10}
+            md={8}
+            lg={6}
+            className="mb-3"
+          >
+            <Card
+              className="poll-card"
+              onClick={() => handleUserClick(searchUser.id)}
+              style={{ cursor: "pointer" }}
+            >
+              <Card.Body className="d-flex align-items-start">
+                <img
+                  src={
+                    searchUser.imageUrl ||
+                    "https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg"
+                  }
+                  alt={`${searchUser.username}'s profile`}
+                  className="me-3 rounded-circle"
+                  style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                />
+                <div className="flex-grow-1">
+                  <Card.Title className="poll-title mb-1">{searchUser.username}</Card.Title>
+                  {searchUser.bio && (
+                    <Card.Text className="user-bio text-muted" style={{ fontSize: "14px" }}>
+                      {searchUser.bio}
+                    </Card.Text>
+                  )}
+                </div>
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+    </Container>
   );
+
 };
 
 export default PublicUserFinder;
