@@ -10,6 +10,33 @@
   border-bottom: 1px solid #e9ecef;
 }
 
+.nav-bg {
+  background-color: #5F464B !important;
+}
+
+.brand-text-welcome {
+  color: #E7ECEF !important;
+}
+
+.brand-text {
+  color:#E7ECEF !important;
+}
+
+.brand-text:hover {
+  color: #E7ECEF !important;
+  background-color: #041B15 !important;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.image img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  image-rendering: auto;
+}
+
 .dropdown.me-2 {
   display: inline-block;
   position: relative;
@@ -18,13 +45,7 @@
 .hover-dropdown .arrow {
   display: inline-block;
   transition: transform 0.3s ease;
-}
-
-.hover-dropdown:hover > .dropdown-menu {
-  display: block;
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+  color:#E7ECEF !important;
 }
 
 .dropdown-toggle::after {
@@ -35,6 +56,7 @@
   margin-top: 0.1rem !important;
   top: 85% !important;
   opacity: 0;
+  visibility: hidden;
   transform: translateY(-15px) scale(0.95);
   transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1), transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
   display: block !important;
@@ -42,26 +64,56 @@
   will-change: opacity, transform;
   box-shadow: 0 8px 16px rgba(0,0,0,0.12);
   border-radius: 8px;
+  position: absolute;
+  z-index: 1000;
 }
 
 .hover-dropdown:hover .arrow {
   transform: rotate(180deg);
   transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  color:#E7ECEF !important;
 }
 
 .dropdown-menu.show {
   opacity: 1;
   transform: translateY(0) scale(1);
+  visibility: visible;
   pointer-events: auto;
+  transition: opacity 250ms ease, transform 250ms ease;
+}
+
+.dropdown-menu.fade {
+  transition: opacity 250ms ease, transform 250ms ease;
+}
+
+.dropdown-menu.fading-out {
+  opacity: 0 !important;
+  transform: translateY(-10px) scale(0.95) !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition: opacity 250ms ease, transform 250ms ease !important;
 }
 
 @media (max-width: 767.98px) {
-  .hover-dropdown .dropdown-menu {
+  .hover-dropdown:hover > .dropdown-menu {
     display: none !important;
   }
 
-  .hover-dropdown:hover > .dropdown-menu {
+  .hover-dropdown .dropdown-menu {
+    position: absolute !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    transform: translateY(-10px) scale(0.95) !important;
+    pointer-events: none !important;
+  }
+
+  .dropdown.show .dropdown-menu {
     display: block !important;
+    position: static !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: translateY(0) scale(1) !important;
+    pointer-events: auto !important;
   }
 }
 

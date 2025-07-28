@@ -1,0 +1,19 @@
+.vote-avatar {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e1e8ed;
+  display: block;
+  margin: 0 auto;
+}
+
+.creator-name {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #041B15;
+}
+
+.text-color {
+  color: #041B15 !important;
+}

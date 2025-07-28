@@ -8,7 +8,7 @@
 }
 
 .vote-form-container h3 {
-  color: #1da1f2;
+  color: #275068;
   margin-bottom: 8px;
   font-size: 1.5em;
 }
@@ -21,7 +21,7 @@
   padding: 12px;
   background: #f8f9fa;
   border-radius: 8px;
-  border-left: 4px solid #1da1f2;
+  border-left: 4px solid #275068;
 }
 
 .anonymous-voting-notice {
@@ -64,14 +64,14 @@
 /* Current Rankings Display */
 .current-rankings {
   background: #f0f8ff;
-  border: 2px solid #1da1f2;
+  border: 2px solid #275068;
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 20px;
 }
 
 .current-rankings h4 {
-  color: #1da1f2;
+  color: #275068;
   margin-bottom: 12px;
   font-size: 1.1em;
 }
@@ -90,7 +90,7 @@
 
 .rank-number {
   font-weight: bold;
-  color: #1da1f2;
+  color: #275068;
   margin-right: 8px;
   min-width: 25px;
 }
@@ -119,7 +119,7 @@
 }
 
 .vote-option-button:hover:not(:disabled) {
-  border-color: #1da1f2;
+  border-color: #275068;
   background: #f8f9fa;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(29, 161, 242, 0.15);
@@ -131,7 +131,7 @@
 }
 
 .vote-option-button.ranked {
-  border-color: #1da1f2;
+  border-color: #275068;
   background: #e3f2fd;
   color: #1976d2;
 }
@@ -155,7 +155,7 @@
 }
 
 .rank-badge {
-  background: #1da1f2;
+  background: #275068;
   color: white;
   border-radius: 50%;
   width: 28px;
@@ -179,7 +179,7 @@
 }
 
 .undo-btn {
-  background: #ff9800;
+  background: #5F464B;
   color: white;
   border: none;
   border-radius: 8px;
@@ -190,7 +190,8 @@
 }
 
 .undo-btn:hover:not(:disabled) {
-  background: #f57c00;
+  background: #573c41;
+  color: #041B15 !important;
 }
 
 .undo-btn:disabled {
@@ -211,6 +212,7 @@
 
 .reset-btn:hover:not(:disabled) {
   background: #d32f2f;
+  color: #041B15 !important;
 }
 
 .reset-btn:disabled {
@@ -219,7 +221,7 @@
 }
 
 .submit-vote-btn {
-  background: #4caf50;
+  background: #136F63;
   color: white;
   border: none;
   border-radius: 8px;
@@ -231,7 +233,8 @@
 }
 
 .submit-vote-btn:hover:not(:disabled) {
-  background: #388e3c;
+  background: #16665b;
+  color: #041B15 !important;
 }
 
 .submit-vote-btn:disabled {

@@ -86,9 +86,9 @@ const PollList = ({ poll }) => {
 });
 
   return (
-    <Container className="py-4">
-      <h2>All Polls</h2>
-      <Form.Group className="mb-4">
+    <Container className="bg-color py-4">
+      <h2 className="text-color">All Polls</h2>
+      <Form.Group className="text-color mb-4">
         <Form.Control 
           className="shadow-sm rounded"
           type="text"
@@ -122,6 +122,7 @@ const PollList = ({ poll }) => {
                     poll={poll} 
                     onClick={() => handleUserClick(poll.id)} 
                     onDuplicate={() => duplicatePoll(poll)}
+                    className="bg-colors"
                   />
                 </Col>
               ))}
