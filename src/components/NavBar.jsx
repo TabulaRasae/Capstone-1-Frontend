@@ -99,7 +99,7 @@ const NavBar = ({ user, onLogout }) => {
                   </Dropdown.Menu>
                 </Dropdown>
 
-                <Nav.Link as={Link} to="/AboutUs" className="brand-text me-2" onClick={() => setExpanded(false)}>About Us</Nav.Link>
+                <Nav.Link as={Link} to="/about-Us" className="brand-text me-2" onClick={() => setExpanded(false)}>About Us</Nav.Link>
 
                 <Nav.Item className="d-flex align-items-center">
                   <Button
