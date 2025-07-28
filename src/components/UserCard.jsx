@@ -1,227 +1,156 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom";
-import "./CSS/UserCard.css";
 import { API_URL } from "../shared";
+import { useNavigate } from "react-router-dom";
+import "./CSS/UsersPage.css";
 
-const UserCard = ({ currentUser }) => {
-  console.log("UserCard rendered");
-
-  const { id } = useParams();
-  console.log("params id:", id);
+const UsersPage = ({ user }) => {
+  const [users, setUsers] = useState([]);
+  const [search, setSearch] = useState("");
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const [user, setUser] = useState(null);
-  const [userPolls, setUserPolls] = useState([]);
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [followLoading, setFollowLoading] = useState(false);
-  const [followersCount, setFollowersCount] = useState(0);
-  const [followingCount, setFollowingCount] = useState(0);
-  const [toggling, setToggling] = useState(false);
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
 
   useEffect(() => {
-    const fetchUserAndPolls = async () => {
-      try {
-        const [userRes, allPollsRes] = await Promise.all([
-          axios.get(`${API_URL}/api/users/${id}`),
-          axios.get(`${API_URL}/api/polls`),
-        ]);
-
-        const userData = userRes.data;
-        setUser(userData);
-        setFollowersCount(userData.followers?.length || 0);
-        setFollowingCount(userData.following?.length || 0);
-
-        console.log("userData.id:", userData.id);
-        console.log(
-          "poll.creator_id values:",
-          allPollsRes.data.map((p) => p.creator_id)
-        );
-
-        const pollsByUser = allPollsRes.data.filter(
-          (poll) =>
-            poll.creator_id === userData.id && poll.status === "published"
-        );
-        setUserPolls(pollsByUser);
-
-        if (currentUser?.id && userData.id !== currentUser.id) {
-          checkFollowStatus(userData.id);
-        }
-      } catch (error) {
-        console.error("Error fetching user or polls:", error);
-      }
-    };
-
-    fetchUserAndPolls();
-  }, [id, currentUser?.id]);
-
-  const handleToggleDisable = async () => {
-    if (
-      !window.confirm(
-        `${user.disabled ? "Re-enable" : "Disable"} this account?`
-      )
-    )
+    // Check if user is admin
+    if (!user) {
+      setError("Please log in to access admin features");
+      setLoading(false);
       return;
-    try {
-      setToggling(true);
-      const { data } = await axios.patch(
-        `${API_URL}/api/admin/users/${user.id}/disable`,
-        {},
-        { withCredentials: true }
-      );
-      setUser((prev) => ({ ...prev, disabled: data.disabled }));
-    } catch (err) {
-      console.error("Error toggling disable:", err);
-      alert("Failed to modify account");
-    } finally {
-      setToggling(false);
     }
+
+    if (user.role !== "admin") {
+      setError("Access denied. Admin privileges required.");
+      setLoading(false);
+      return;
+    }
+
+    // Fetch users with proper authentication
+    axios
+      .get(`${API_URL}/api/users`, {
+        headers: getAuthHeaders()
+      })
+      .then((response) => {
+        setUsers(response.data);
+        setError(null);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching users:", error);
+        if (error.response && error.response.status === 403) {
+          setError("Access denied. Only users with admin privileges can view this page.");
+        } else {
+          setError("Failed to fetch users. Please try again later.");
+        }
+        setLoading(false);
+      });
+  }, [user]);
+
+  const handleUserClick = (id) => {
+    navigate(`/users/${id}`);
   };
 
-  const checkFollowStatus = async (userId) => {
-    if (!currentUser?.id) return;
-
+  const handleDisableUser = async (userId) => {
     try {
-      const response = await axios.get(
-        `${API_URL}/api/follows/${currentUser.id}/status/${userId}`
-      );
-      setIsFollowing(response.data.isFollowing);
+      await axios.patch(`${API_URL}/api/admin/users/${userId}/disable`, {}, {
+        headers: getAuthHeaders()
+      });
+      
+      // Update the user in the list
+      setUsers(prev => prev.map(u => 
+        u.id === userId ? { ...u, disabled: !u.disabled } : u
+      ));
     } catch (error) {
-      console.error("Error checking follow status:", error);
+      console.error("Error disabling user:", error);
+      alert("Failed to update user status");
     }
   };
 
-const handleFollow = async () => {
-  if (!currentUser?.id || !user?.id) return;
+  const filteredUsers = users.filter((user) =>
+    user.username.toLowerCase().includes(search.toLowerCase())
+  );
 
-  setFollowLoading(true);
-  try {
-    if (isFollowing) {
-      await axios.delete(`${API_URL}/api/follows`, {
-        data: {
-          follower_id: currentUser.id,
-          following_id: user.id,
-        },
-      });
-      setIsFollowing(false);
-      setFollowersCount((prev) => prev - 1);
-    } else {
-      await axios.post(`${API_URL}/api/follows`, {
-        follower_id: currentUser.id,
-        following_id: user.id,
-      });
-      setIsFollowing(true);
-      setFollowersCount((prev) => prev + 1);
-    }
-  } catch (error) {
-    console.error("Error updating follow status:", error);
-    alert("Failed to update follow status. Please try again.");
-  } finally {
-    setFollowLoading(false);
+  if (loading) {
+    return (
+      <div className="users-page">
+        <p>Loading admin panel...</p>
+      </div>
+    );
   }
-};
 
-  if (!user) return <p>Loading...</p>;
-
-  const isOwnProfile = currentUser?.id === user.id;
-  const canAdminDisable =
-    currentUser?.role === "admin" && user.role !== "admin" && !isOwnProfile;
+  if (error) {
+    return (
+      <div className="users-page">
+        <h2>Admin Panel</h2>
+        <p className="error-message">{error}</p>
+        <button onClick={() => navigate("/poll-list")}>Back to Home</button>
+      </div>
+    );
+  }
 
   return (
-    <div className="user-card-page">
-      <div className="user-profile-header">
-        <div className="user-profile-info">
-          {user.imageUrl && (
-            <img src={user.imageUrl} alt="profile" className="user-card-pfp" />
-          )}
-          <div className="user-details">
-            <h2 className="user-card-name">
-              {user.username}{" "}
-              {user.disabled && (
-                <span className="disabled-tag">(disabled)</span>
-              )}
-            </h2>
-            <p className="user-handle">@{user.username}</p>
-            {user.bio && <p className="user-card-bio">{user.bio}</p>}
-
-            <div className="user-stats">
-              <div className="stat-item">
-                <span className="stat-count">{followersCount}</span>
-                <span className="stat-label">Followers</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-count">{followingCount}</span>
-                <span className="stat-label">Following</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-count">{userPolls.length}</span>
-                <span className="stat-label">Polls</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {!isOwnProfile && currentUser && (
-          <div className="user-actions">
-            <button
-              className={`follow-btn ${isFollowing ? "following" : ""}`}
-              onClick={handleFollow}
-              disabled={followLoading}
-            >
-              {followLoading ? (
-                "Loading..."
-              ) : isFollowing ? (
-                <span className="follow-text">Following</span>
-              ) : (
-                "Follow"
-              )}
-            </button>
-            
-            {canAdminDisable && (
-              <button
-                className="disable-btn"
-                onClick={handleToggleDisable}
-                disabled={toggling}
-              >
-                {toggling
-                  ? "Processing..."
-                  : user.disabled
-                  ? "Re-enable Account"
-                  : "Disable Account"}
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="user-polls-section">
-        <h3 className="user-polls-heading">Polls by {user.username}</h3>
-        {userPolls.length === 0 ? (
-          <p className="no-polls">This user hasn't created any polls yet.</p>
+    <div className="users-page">
+      <h2>Admin Panel - User Management</h2>
+      <p>Total Users: {users.length}</p>
+      
+      <input
+        type="text"
+        placeholder="Search users by username..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="search-input"
+      />
+      
+      <div className="users-list">
+        {filteredUsers.length === 0 ? (
+          <p>No users found matching your search.</p>
         ) : (
-          <div className="user-poll-grid">
-            {userPolls.map((poll) => (
-              <div
-                key={poll.id}
-                className="user-poll-card"
-                onClick={() => navigate(`/polls/${poll.id}`)}
+          <ul className="user-list">
+            {filteredUsers.map((user) => (
+              <li
+                key={user.id}
+                className={`user-card ${user.disabled ? 'disabled' : ''}`}
+                onClick={() => handleUserClick(user.id)}
               >
-                <h4 className="poll-title">{poll.title}</h4>
-                {poll.description && (
-                  <p className="poll-description">{poll.description}</p>
-                )}
-                <div className="poll-meta">
-                  <span className="poll-date">
-                    {new Date(poll.createdAt).toLocaleDateString()}
-                  </span>
+                <div className="user-info">
+                  <img
+                    src={user.imageUrl || "https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg"}
+                    alt={user.username}
+                    className="user-pfp"
+                  />
+                  <div>
+                    <p className="user-name">
+                      {user.username}
+                      {user.disabled && <span className="disabled-tag"> (Disabled)</span>}
+                      {user.role === "admin" && <span className="admin-tag"> (Admin)</span>}
+                    </p>
+                    <p className="user-bio">{user.bio || "No bio available"}</p>
+                  </div>
                 </div>
-              </div>
+                
+                {user.role !== "admin" && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDisableUser(user.id);
+                    }}
+                    className={`admin-action-btn ${user.disabled ? 'enable' : 'disable'}`}
+                  >
+                    {user.disabled ? 'Enable' : 'Disable'}
+                  </button>
+                )}
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
     </div>
   );
 };
 
-export default UserCard;
+export default UsersPage;

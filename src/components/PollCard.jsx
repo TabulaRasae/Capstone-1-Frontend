@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Card, Button, Badge, Row, Col, Spinner, Container, Stack } from "react-bootstrap";
+import { API_URL } from "../shared";
 import "./CSS/PollCardStyles.css";
 
-const PollCard = ({ poll, onClick, onDuplicate }) => {
+const PollCard = ({ poll, onClick, onDuplicate, showDuplicateButton = true }) => {
   const [timeLeft, setTimeLeft] = useState("");
-  const [creator, setCreator] = useState(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -52,31 +52,6 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
     return () => clearInterval(timer);
   }, [poll.endAt]);
 
-  useEffect(() => {
-    const fetchCreator = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:8080/api/users/${poll.creator_id}`
-        );
-        if (response.ok) {
-          const userData = await response.json();
-          setCreator(userData);
-        } else {
-          console.error("Failed to fetch creator:", response.status);
-          setCreator({ username: "Unknown" });
-        }
-      } catch (error) {
-        console.error("Error fetching creator:", error);
-        setCreator({ username: "Unknown" });
-      }
-    };
-
-    if (poll.creator_id) {
-      fetchCreator();
-    }
-  }, [poll.creator_id]);
-
-
   const isPollActive =
     poll.status !== "closed" &&
     poll.isActive &&
@@ -98,6 +73,11 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
     }
   };
 
+  const creator = poll.creator || poll.Creator || null;
+  const creatorUsername = creator?.username || "Unknown";
+
+  console.log("Poll object:", poll); 
+  console.log("Creator object:", creator); 
 
   return (
     <Card
@@ -140,6 +120,20 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
             </Col>
           </Row>
           <Row className="justify-content-between">
+            {showDuplicateButton && (
+              <Col xs="auto">
+                <Button 
+                  size="sm" 
+                  variant="outline-secondary" 
+                  onClick={(e) => {
+                    e.stopPropagation(); 
+                    onDuplicate();
+                  }}
+                >
+                  Duplicate
+                </Button>
+              </Col>
+            )}
             <Col xs="auto">
               <Button
                 className="but-color"
