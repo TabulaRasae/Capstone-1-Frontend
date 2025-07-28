@@ -1,12 +1,12 @@
 import React from "react";
 import "./CSS/ProfileStyles.css";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { API_URL } from "../shared";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import UserPollCard from "./UserPollCard";
 import EditProfile from "./EditProfile"; 
-import { Container, Row, Col, Form, Spinner, Alert, Card, Button } from "react-bootstrap";
+import { Container, Row, Col, Button, Spinner } from "react-bootstrap";
 
 const ProfilePage = ({ user, authLoading }) => {
   const [master, setMaster] = useState(null);
@@ -20,10 +20,22 @@ const ProfilePage = ({ user, authLoading }) => {
   const [showFollowing, setShowFollowing] = useState(false);
   const navigate = useNavigate();
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   const fetchUser = async () => {
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/api/users/${user.id}`);
+      const response = await axios.get(`${API_URL}/api/users/${user.id}`, {
+        headers: getAuthHeaders()
+      });
       setMaster(response.data);
       
       setFollowers(response.data.followers || []);
@@ -51,7 +63,9 @@ const ProfilePage = ({ user, authLoading }) => {
 
   const handleDeletePoll = async (id) => {
     try {
-      await axios.delete(`${API_URL}/api/polls/${id}`);
+      await axios.delete(`${API_URL}/api/polls/${id}`, {
+        headers: getAuthHeaders()
+      });
       setPolls((prevPolls) => prevPolls.filter((p) => p.id !== id));
     } catch (err) {
       console.error("Failed to delete poll:", err);
@@ -90,7 +104,16 @@ const ProfilePage = ({ user, authLoading }) => {
 
   const handleUserProfileClick = (userId) => {
     console.log("Navigate to user profile:", userId);
+    // Close the modal first
     handleCloseModal();
+    
+    // Navigate to the user's profile
+    if (userId === user?.id) {
+      // If clicking on own profile, stay on current page or refresh
+      window.location.reload();
+    } else {
+      navigate(`/users/${userId}`);
+    }
   };
 
   useEffect(() => {
@@ -109,7 +132,7 @@ const ProfilePage = ({ user, authLoading }) => {
     return (
       <div className="profile-page">
         <div className="loading-container">
-          <p>Loading</p>
+          <p>Loading...</p>
           <Spinner animation="border" size="sm"/>
         </div>
       </div>
@@ -120,7 +143,7 @@ const ProfilePage = ({ user, authLoading }) => {
     return (
       <div className="profile-page">
         <div className="loading-container">
-          <p>Redirecting to login</p>
+          <p>Redirecting to login...</p>
           <Spinner animation="border" size="sm"/>
         </div>
       </div>
@@ -131,7 +154,7 @@ const ProfilePage = ({ user, authLoading }) => {
     return (
       <div className="profile-page">
         <div className="loading-container">
-          <p>Loading profile</p>
+          <p>Loading profile...</p>
           <Spinner animation="border" size="sm"/>
         </div>
       </div>
@@ -174,6 +197,7 @@ const ProfilePage = ({ user, authLoading }) => {
             />
           </Col>
         </Row>
+
           <Row className="profile-info text-center">
             <Col className="justify-content-center">
             <h1 className="text-color display-name">{master.username}</h1>
@@ -211,8 +235,6 @@ const ProfilePage = ({ user, authLoading }) => {
     </button>
   </Col>
 </Row>
-
-
 
             {master.bio && <p className="bio">{master.bio}</p>}
 
@@ -272,6 +294,7 @@ const ProfilePage = ({ user, authLoading }) => {
                     key={follower.id} 
                     className="follower-item"
                     onClick={() => handleUserProfileClick(follower.id)}
+                    style={{ cursor: 'pointer' }}
                   >
                     <img
                       src={
@@ -309,6 +332,7 @@ const ProfilePage = ({ user, authLoading }) => {
                     key={followedUser.id} 
                     className="follower-item"
                     onClick={() => handleUserProfileClick(followedUser.id)}
+                    style={{ cursor: 'pointer' }}
                   >
                     <img
                       src={
