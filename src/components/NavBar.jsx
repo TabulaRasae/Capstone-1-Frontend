@@ -108,7 +108,7 @@ const NavBar = ({ user, onLogout }) => {
                     className="ms-3"
                     onClick={() => {
                       setExpanded(false);
-                      onLogout
+                      onLogout(); // ✅ Fixed: Added the missing parentheses
                     }}
                   >
                     Logout
