@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './CSS/UserPollCardStyles.css';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../shared"; 
 
 const PollCard = ({ poll, onClick, onDelete }) => {
   const [timeLeft, setTimeLeft] = useState('');
@@ -49,7 +50,8 @@ const PollCard = ({ poll, onClick, onDelete }) => {
   useEffect(() => {
     const fetchCreator = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/api/users/${poll.creator_id}`);
+        const response = await fetch(`${API_URL}/api/users/${poll.creator_id}`);
+        
         if (response.ok) {
           const userData = await response.json();
           setCreator(userData);
@@ -77,12 +79,13 @@ const PollCard = ({ poll, onClick, onDelete }) => {
     }
   };
 
-if(!poll){
-  return(
-    <div>
-    <h1>No polls made yet</h1>
-    </div>
-  )};
+  if(!poll){
+    return(
+      <div>
+        <h1>No polls made yet</h1>
+      </div>
+    )
+  };
   
   const copyToClipboard = async (e) => {
     e.stopPropagation(); 
@@ -110,7 +113,7 @@ if(!poll){
     }
   };
 
-return (
+  return (
     <div 
       className={`user-poll-card ${!isPollActive ? 'poll-ended' : ''}`}
       onClick={onClick} 
@@ -119,20 +122,20 @@ return (
       <div className="poll-header">
         <h3 className="poll-title">{poll.title}</h3>
         <button
-            className={`copy-btn ${copied ? 'copied' : ''}`}
-            onClick={copyToClipboard}
-            title="Copy poll link"
-          >
-            {copied ? (
-              <span className="copy-feedback">
-                ✓ Copied!
-              </span>
-            ) : (
-              <span className="copy-icon">
-                📋 Copy Link
-              </span>
-            )}
-          </button>
+          className={`copy-btn ${copied ? 'copied' : ''}`}
+          onClick={copyToClipboard}
+          title="Copy poll link"
+        >
+          {copied ? (
+            <span className="copy-feedback">
+              ✓ Copied!
+            </span>
+          ) : (
+            <span className="copy-icon">
+              📋 Copy Link
+            </span>
+          )}
+        </button>
         <div className="poll-meta">
           <span className={`poll-time ${!isPollActive ? 'ended' : ''}`}>
             {timeLeft}

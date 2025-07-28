@@ -23,6 +23,7 @@ import DraftPoll from "./components/DraftPoll";
 import PollDetails from "./components/PollDetails";
 import AboutUs from "./components/AboutUs";
 import MyFriends from "./components/MyFriends";
+import AdminPolls from "./components/AdminPolls";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -160,10 +161,11 @@ const App = () => {
           {/* Profile routes */}
           <Route path="/me" element={<Profile user={user} authLoading={loading} />} />
           <Route path="/users/:id" element={<Friends user={user} authLoading={loading} />} />
+          <Route path="/users" element={<UsersPage user={user} />} />
           
           {/* Poll routes */}
           <Route path="/new-poll" element={<NewPoll user={user} />} />
-          <Route path="/poll-list" element={<PollList polls={polls} />} />
+          <Route path="/poll-list" element={<PollList user={user} />} />
           <Route path="/polls/:id" element={<PollDetails user={user} />} />
           
           {/* Draft routes */}
@@ -171,12 +173,14 @@ const App = () => {
           <Route path="/edit-draft/:id" element={<DraftPoll user={user} />} />
           
           {/* User/Friends routes */}
-          <Route path="/users" element={<UsersPage />} />
+          <Route path="/users" element={<UsersPage user={user}/>} />
           <Route path="/search-friends" element={<PublicUserFinder currentUser={user} />} />
           <Route path="/my-friends" element={<MyFriends user={user}/>} />
           
           {/* Other pages */}
           <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/admin/users" element={<UsersPage user={user} />} />
+          <Route path="/admin/polls" element={<AdminPolls user={user} />} />
           
           {/* 404 route - must be last */}
           <Route path="*" element={<NotFound />} />

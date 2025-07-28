@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { API_URL } from "../shared";
 import "./CSS/VoteFormStyles.css";
@@ -8,6 +8,31 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [checkingVoteStatus, setCheckingVoteStatus] = useState(true);
+
+  useEffect(() => {
+    const checkIfUserHasVoted = () => {
+      if (poll.allowAnonymous) {
+        setCheckingVoteStatus(false);
+        setHasVoted(false);
+        return;
+      }
+
+      if (user && poll.ballots) {
+        const userBallot = poll.ballots.find(ballot => ballot.user_id === user.id);
+        if (userBallot) {
+          setHasVoted(true);
+        }
+      }
+
+      setCheckingVoteStatus(false);
+    };
+
+    if (poll) {
+      checkIfUserHasVoted();
+    }
+  }, [poll, user]);
 
   const handleOptionClick = (option) => {
     const existingIndex = rankedOptions.findIndex(item => item.id === option.id);
@@ -40,6 +65,11 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
       setSubmitting(true);
       setError(null);
 
+      if (hasVoted && !poll.allowAnonymous) {
+        setError("You have already voted on this poll");
+        return;
+      }
+
       if (rankedOptions.length === 0) {
         setError("Please rank at least one option");
         return;
@@ -70,6 +100,10 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
       
       setSuccess(true);
       setRankedOptions([]);
+
+      if (!poll.allowAnonymous) {
+        setHasVoted(true);
+      }
       
       if (onVoteSubmitted) {
         onVoteSubmitted(response.data);
@@ -87,14 +121,43 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
     setError(null);
   };
 
+  if (checkingVoteStatus) {
+    return (
+      <div className="vote-form-container">
+        <div className="loading-message">
+          <p>Checking vote status...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasVoted && !poll.allowAnonymous) {
+    return (
+      <div className="vote-form-container">
+        <div className="already-voted-message">
+          <h3>✓ You have already voted on this poll</h3>
+          <p>Thank you for your participation!</p>
+          <p className="vote-info">You can only vote once per poll when anonymous voting is disabled.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (success) {
     return (
       <div className="vote-form-container">
         <div className="success-message">
           <h3>✓ Vote submitted successfully!</h3>
           <p>Thank you for participating in this poll.</p>
-          {!user && (
-            <p className="anonymous-note">Your vote was submitted anonymously.</p>
+          {poll.allowAnonymous ? (
+            <p className="anonymous-note">
+              {user ? 
+                "Your vote was submitted. You can vote again since anonymous voting is enabled." : 
+                "Your vote was submitted anonymously. You can vote again."
+              }
+            </p>
+          ) : (
+            <p className="logged-in-note">Your vote has been recorded.</p>
           )}
         </div>
       </div>
@@ -108,9 +171,25 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
         Click the options in order of preference. Your first click = 1st choice, second click = 2nd choice, etc.
       </p>
       
-      {!user && poll.allowAnonymous && (
+      {/* Show voting type notice */}
+      {poll.allowAnonymous ? (
         <div className="anonymous-voting-notice">
-          <p>🔓 You are voting anonymously</p>
+          <p>🔓 Anonymous voting is enabled</p>
+          <p className="small-text">
+            {user ? 
+              "You can vote multiple times on this poll" : 
+              "You are voting anonymously and can vote multiple times"
+            }
+          </p>
+        </div>
+      ) : user ? (
+        <div className="logged-in-voting-notice">
+          <p>👤 You are voting as @{user.username}</p>
+          <p className="small-text">You can only vote once on this poll</p>
+        </div>
+      ) : (
+        <div className="login-required-notice">
+          <p>🔒 Please log in to vote on this poll</p>
         </div>
       )}
       

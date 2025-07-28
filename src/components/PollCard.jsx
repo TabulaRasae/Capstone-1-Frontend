@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Card, Button, Badge, Row, Col, Spinner, Container, Stack } from "react-bootstrap";
+import { API_URL } from "../shared";
 import "./CSS/PollCardStyles.css";
 
-const PollCard = ({ poll, onClick, onDuplicate }) => {
+const PollCard = ({ poll, onClick, onDuplicate, showDuplicateButton = true }) => {
   const [timeLeft, setTimeLeft] = useState("");
-  const [creator, setCreator] = useState(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -52,31 +52,6 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
     return () => clearInterval(timer);
   }, [poll.endAt]);
 
-  useEffect(() => {
-    const fetchCreator = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:8080/api/users/${poll.creator_id}`
-        );
-        if (response.ok) {
-          const userData = await response.json();
-          setCreator(userData);
-        } else {
-          console.error("Failed to fetch creator:", response.status);
-          setCreator({ username: "Unknown" });
-        }
-      } catch (error) {
-        console.error("Error fetching creator:", error);
-        setCreator({ username: "Unknown" });
-      }
-    };
-
-    if (poll.creator_id) {
-      fetchCreator();
-    }
-  }, [poll.creator_id]);
-
-
   const isPollActive =
     poll.status !== "closed" &&
     poll.isActive &&
@@ -97,7 +72,14 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
       console.log("No link to copy");
     }
   };
-    
+
+  // Get creator info from the poll object (included from backend)
+  // Handle different possible structures
+  const creator = poll.creator || poll.Creator || null;
+  const creatorUsername = creator?.username || "Unknown";
+
+  console.log("Poll object:", poll); // Debug log
+  console.log("Creator object:", creator); // Debug log
 
   return (
     <Card
@@ -110,28 +92,29 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
           <Card.Title className="text-truncate">
             {poll.title}
           </Card.Title>
-            <Card.Text 
-              style={{
-                minHeight: "50px", 
-                maxHeight: "50px", 
-                overflow: "hidden", 
-                fontSize: "0.9rem",
-              }}>
-              {poll.description}
-            </Card.Text>
+          <Card.Text 
+            style={{
+              minHeight: "50px", 
+              maxHeight: "50px", 
+              overflow: "hidden", 
+              fontSize: "0.9rem",
+            }}>
+            {poll.description}
+          </Card.Text>
         </Stack>
 
         <Stack className="mt-auto" gap={2}>
-            <Row className="justify-content-center mt-1">
-              <Col className="text-end">
-                  <Badge bg={isPollActive ? "primary" : "danger"}>
-                    {isPollActive ? "Live" : "Ended"}
-                  </Badge>
-              </Col>
-            </Row>
-          <Row className="align-itmes-center">
+          <Row className="justify-content-center mt-1">
+            <Col className="text-end">
+              <Badge bg={isPollActive ? "primary" : "danger"}>
+                {isPollActive ? "Live" : "Ended"}
+              </Badge>
+            </Col>
+          </Row>
+
+          <Row className="align-items-center">
             <Col xs="auto" className="text-muted small">
-              by {creator ? `@${creator.username}` : <Spinner animation="border" size="sm"/>}
+              by @{creatorUsername}
             </Col>
             <Col className="text-end small">
               <small className={!isPollActive ? "text-danger" : "text-primary"}>
@@ -141,18 +124,20 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
           </Row>
 
           <Row className="justify-content-between">
-            <Col xs="auto">
-              <Button 
-                size="sm" 
-                variant="outline-secondary" 
-                onClick={(e) => {
-                  e.stopPropagation(); 
-                  onDuplicate();
-                }}
-              >
-                Duplicate
-              </Button>
-            </Col>
+            {showDuplicateButton && (
+              <Col xs="auto">
+                <Button 
+                  size="sm" 
+                  variant="outline-secondary" 
+                  onClick={(e) => {
+                    e.stopPropagation(); 
+                    onDuplicate();
+                  }}
+                >
+                  Duplicate
+                </Button>
+              </Col>
+            )}
             <Col xs="auto">
               <Button 
                 variant="outline-secondary" 
@@ -163,8 +148,6 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
               </Button>
             </Col>
           </Row>
-
-
         </Stack>
       </Card.Body>
     </Card>
@@ -172,40 +155,3 @@ const PollCard = ({ poll, onClick, onDuplicate }) => {
 };
 
 export default PollCard;
-
-/*      <div className="poll-header">
-        <h3 className="poll-title">{poll.title}</h3>
-        <button
-          className={`copy-btn ${copied ? "copied" : ""}`}
-          onClick={copyToClipboard}
-          title="Copy poll link"
-        >
-          {copied ? (
-            <span className="copy-feedback">✓ Copied!</span>
-          ) : (
-            <span className="copy-icon">📋 Copy Link</span>
-          )}
-        </button>
-        <div className="poll-meta">
-          <span className="poll-creator">
-            by {creator ? `@${creator.username}` : "Loading..."}
-          </span>
-          <span className={`poll-time ${!isPollActive ? "ended" : ""}`}>
-            {timeLeft}
-          </span>
-        </div>
-      </div>
-
-      {poll.description && (
-        <div className="poll-description">
-          <p>{poll.description}</p>
-        </div>
-      )}
-
-      <button onClick={onDuplicate}>Duplicate</button>
-
-      {!isPollActive && (
-        <div className="poll-status">
-          <span className="status-badge">Ended</span>
-        </div>
-      )}*/ 

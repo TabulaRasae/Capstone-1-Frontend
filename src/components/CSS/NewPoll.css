@@ -1,0 +1,48 @@
+.text-color {
+  color: #041B15 !important;
+}
+
+.but-color {
+  background-color: #136F63 !important;
+  color: #E7ECEF !important;
+}
+
+.but-color:hover {
+  color: #041B15 !important;
+}
+
+.block2 {
+  background-color: #275068 !important;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.draft-poll-wrapper p,
+.draft-poll-wrapper h1,
+.draft-poll-wrapper h2,
+.draft-poll-wrapper label {
+  color: #041B15 !important;
+}
+
+.btn:focus,
+.btn:focus-visible,
+.btn:active:focus,
+.btn.active:focus,
+button:focus,
+button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.draft-title-link {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.draft-title-link:hover {
+    color: #5F464B;
+    text-decoration: underline;
+    cursor: pointer;
+}

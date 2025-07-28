@@ -29,7 +29,10 @@ return (
                 </Navbar.Text>
                 <Nav.Link as={Link} to="/me" className="me-2">Profile</Nav.Link>
                 {user.role === "admin" && (
-                  <Nav.Link as={Link} to="/users" className="me-2">Users</Nav.Link>
+                  <>
+                  <Nav.Link as={Link} to="/admin/users" className="me-2">Admin Users</Nav.Link>
+                  <Nav.Link as={Link} to="/admin/polls" className="me-2">Admin Polls</Nav.Link>
+                  </>
                 )}
                 <Nav.Link as={Link} to="/search-friends" className="me-2">Find Friends</Nav.Link>
                 <Nav.Link as={Link} to="/my-friends" className="me-2">My Friends</Nav.Link>
