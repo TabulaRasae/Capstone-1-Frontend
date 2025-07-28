@@ -1,18 +1,38 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { API_URL } from "../shared";
+import "./CSS/VoteFormStyles.css";
 
 const VoteForm = ({ poll, user, onVoteSubmitted }) => {
-  const [rankings, setRankings] = useState({});
+  const [rankedOptions, setRankedOptions] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  const handleRankChange = (optionId, rank) => {
-    setRankings((prev) => ({
-      ...prev,
-      [optionId]: parseInt(rank),
-    }));
+  const handleOptionClick = (option) => {
+    const existingIndex = rankedOptions.findIndex(item => item.id === option.id);
+    
+    if (existingIndex !== -1) {
+      return;
+    }
+
+    setRankedOptions(prev => [...prev, option]);
+    setError(null);
+  };
+
+  const handleUndo = () => {
+    if (rankedOptions.length > 0) {
+      setRankedOptions(prev => prev.slice(0, -1));
+    }
+  };
+
+  const getRankForOption = (optionId) => {
+    const index = rankedOptions.findIndex(item => item.id === optionId);
+    return index !== -1 ? index + 1 : null;
+  };
+
+  const isOptionRanked = (optionId) => {
+    return rankedOptions.some(item => item.id === optionId);
   };
 
   const submitVote = async () => {
@@ -20,30 +40,21 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
       setSubmitting(true);
       setError(null);
 
-      const rankingsArray = Object.entries(rankings)
-        .filter(([_, rank]) => rank > 0)
-        .map(([pollOptionId, rank]) => ({
-          pollOptionId: parseInt(pollOptionId),
-          rank: rank,
-        }));
-
-      if (rankingsArray.length === 0) {
+      if (rankedOptions.length === 0) {
         setError("Please rank at least one option");
         return;
       }
 
-      const ranks = rankingsArray.map((r) => r.rank);
-      const uniqueRanks = [...new Set(ranks)];
-      if (ranks.length !== uniqueRanks.length) {
-        setError("Each option must have a unique rank");
-        return;
-      }
+      const rankingsArray = rankedOptions.map((option, index) => ({
+        pollOptionId: option.id,
+        rank: index + 1,
+      }));
 
-      if (rankingsArray.length < poll.pollOptions.length) {
-        const warningMessage = window.confirm(
-          "You have not ranked all options. Do you want to continue?"
+      if (rankedOptions.length < poll.pollOptions.length) {
+        const confirmContinue = window.confirm(
+          `You have ranked ${rankedOptions.length} out of ${poll.pollOptions.length} options. Do you want to submit your vote anyway?`
         );
-        if (!warningMessage) {
+        if (!confirmContinue) {
           setSubmitting(false);
           return;
         }
@@ -58,13 +69,10 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
       const response = await axios.post(`${API_URL}/api/ballots`, voteData);
       
       setSuccess(true);
-      setRankings({});
+      setRankedOptions([]);
       
       if (onVoteSubmitted) {
         onVoteSubmitted(response.data);
-        const confirmationMessage = window.confirm(
-          "Vote submitted successfully!"
-        );
       }
     } catch (error) {
       console.error("Error submitting vote:", error);
@@ -72,6 +80,11 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const resetVote = () => {
+    setRankedOptions([]);
+    setError(null);
   };
 
   if (success) {
@@ -91,7 +104,9 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
   return (
     <div className="vote-form-container">
       <h3>Rank the Options</h3>
-      <p>Rank the options from 1 (most preferred) to {poll.pollOptions.length} (least preferred)</p>
+      <p className="voting-instructions">
+        Click the options in order of preference. Your first click = 1st choice, second click = 2nd choice, etc.
+      </p>
       
       {!user && poll.allowAnonymous && (
         <div className="anonymous-voting-notice">
@@ -105,46 +120,75 @@ const VoteForm = ({ poll, user, onVoteSubmitted }) => {
         </div>
       )}
 
-      <div className="options-voting-list">
+      {/* Current Rankings Display */}
+      {rankedOptions.length > 0 && (
+        <div className="current-rankings">
+          <h4>Your Current Rankings:</h4>
+          <ol className="ranking-list">
+            {rankedOptions.map((option, index) => (
+              <li key={option.id} className="ranking-item">
+                <span className="rank-number">{index + 1}.</span>
+                <span className="option-text">{option.text}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
+      {/* Options Grid */}
+      <div className="options-grid">
         {poll.pollOptions
           .sort((a, b) => a.position - b.position)
-          .map((option, index) => (
-            <div key={option.id} className="vote-option-item">
-              <div className="option-content">
-                <span className="option-number">{index + 1}.</span>
-                <span className="option-text">{option.text}</span>
-              </div>
-              
-              <div className="rank-selector">
-                <label htmlFor={`rank-${option.id}`}>Rank:</label>
-                <select
-                  id={`rank-${option.id}`}
-                  value={rankings[option.id] || ""}
-                  onChange={(e) => handleRankChange(option.id, e.target.value)}
-                  className="rank-select"
-                >
-                  <option value="">No rank</option>
-                  {Array.from({ length: poll.pollOptions.length }, (_, i) => (
-                    <option key={i + 1} value={i + 1}>
-                      {i + 1}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          ))}
+          .map((option) => {
+            const rank = getRankForOption(option.id);
+            const isRanked = isOptionRanked(option.id);
+            
+            return (
+              <button
+                key={option.id}
+                onClick={() => handleOptionClick(option)}
+                className={`vote-option-button ${isRanked ? 'ranked' : 'unranked'}`}
+                disabled={submitting}
+              >
+                <div className="option-content">
+                  <span className="option-text">{option.text}</span>
+                  {rank && (
+                    <span className="rank-badge">{rank}</span>
+                  )}
+                </div>
+              </button>
+            );
+          })}
       </div>
 
-      <button
-        onClick={submitVote}
-        disabled={submitting || Object.keys(rankings).length === 0}
-        className="submit-vote-btn"
-      >
-        {submitting ? "Submitting..." : "Submit Vote"}
-      </button>
+      {/* Control Buttons */}
+      <div className="vote-controls">
+        <button
+          onClick={handleUndo}
+          disabled={rankedOptions.length === 0 || submitting}
+          className="undo-btn"
+        >
+          ↶ Undo Last Selection
+        </button>
+        
+        <button
+          onClick={resetVote}
+          disabled={rankedOptions.length === 0 || submitting}
+          className="reset-btn"
+        >
+          🗑️ Reset All
+        </button>
+        
+        <button
+          onClick={submitVote}
+          disabled={submitting || rankedOptions.length === 0}
+          className="submit-vote-btn"
+        >
+          {submitting ? "Submitting..." : `Submit Vote (${rankedOptions.length} ranked)`}
+        </button>
+      </div>
     </div>
   );
 };
 
 export default VoteForm;
-
