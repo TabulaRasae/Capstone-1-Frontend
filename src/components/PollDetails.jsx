@@ -1,22 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../shared";
 import RestrictedAccess from "./RestrictedAccess";
 import VoteForm from "./VoteForm";
 import IRVResults from "./IRVResults";
-import { Form, Button, Container, Row, Col, Card, ListGroup, Alert } from "react-bootstrap";
+import { Button, Row, Col } from "react-bootstrap";
 
 const PollDetails = ({ user }) => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [poll, setPoll] = useState(null);
+  const [result, setResult] = useState(null);
+  const [ballotCount, setBallotCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [userLoading, setUserLoading] = useState(true);
   const [error, setError] = useState(null);
   const [requiresLogin, setRequiresLogin] = useState(false);
   const [userBallot, setUserBallot] = useState(null);
+  const [hasVoted, setHasVoted] = useState(false);
   const [voteSubmitted, setVoteSubmitted] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
@@ -26,67 +28,84 @@ const PollDetails = ({ user }) => {
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
-  useEffect(() => {
-    const fetchPoll = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const response = await axios.get(`${API_URL}/api/polls/${id}`, {
-          headers: getAuthHeaders(),
-        });
-
-        const pollData = response.data;
-
-        if (!pollData.PollOptions && pollData.pollOptions) {
-          pollData.PollOptions = pollData.pollOptions;
-        }
-
-        if (pollData.PollOptions) {
-          pollData.pollOptions = pollData.PollOptions;
-        }
-        if (pollData.Ballots) {
-          pollData.ballots = pollData.Ballots.map((ballot) => ({
-            ...ballot,
-            ballotRankings: ballot.BallotRankings || [],
-          }));
-        }
-
-        setPoll(pollData);
-
-        if (pollData.endAt && new Date(pollData.endAt) <= new Date()) {
-          setShowResults(true);
-        }
-
-        if (user && pollData.Ballots && pollData.Ballots.length > 0) {
-          const userBallotData = pollData.Ballots.find(
-            (ballot) => ballot.user_id === user.id
-          );
-          if (userBallotData) {
-            setUserBallot(userBallotData);
-            setVoteSubmitted(true);
-            setShowResults(true);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching poll:", error);
-        if (error.response?.status === 403) {
-          setError("restricted");
-          setRequiresLogin(error.response.data.requiresLogin || false);
-        } else if (error.response?.status === 404) {
-          setError("Poll not found");
-        } else {
-          setError("Failed to load poll");
-        }
-      } finally {
-        setLoading(false);
+  const fetchUserBallot = useCallback(
+    async (currentPoll) => {
+      if (!user || currentPoll?.allowAnonymous) {
+        setUserBallot(null);
+        setHasVoted(false);
+        return;
       }
-    };
 
-    if (id) {
-      fetchPoll();
+      try {
+        const ballotResp = await axios.get(
+          `${API_URL}/api/polls/${id}/my-ballot`,
+          { headers: getAuthHeaders() }
+        );
+
+        setUserBallot(ballotResp.data);
+        setHasVoted(true);
+        setVoteSubmitted(true);
+        setShowResults(true);
+      } catch (ballotErr) {
+        if (ballotErr.response?.status === 404) {
+          setUserBallot(null);
+          setHasVoted(false);
+        } else {
+          console.error("Error fetching user ballot:", ballotErr);
+        }
+      }
+    },
+    [id, user]
+  );
+
+  const loadPoll = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setVoteSubmitted(false);
+      setHasVoted(false);
+      setUserBallot(null);
+
+      const response = await axios.get(`${API_URL}/api/polls/${id}`, {
+        headers: getAuthHeaders(),
+      });
+
+      const pollData = response.data;
+      pollData.pollOptions = pollData.pollOptions || pollData.PollOptions || [];
+
+      setPoll(pollData);
+      setResult(pollData.result || null);
+      const totalVotes = pollData.ballotCount ?? pollData.result?.totalBallots ?? 0;
+      setBallotCount(totalVotes);
+
+      const pollEnded =
+        pollData.status === "closed" ||
+        (pollData.endAt && new Date(pollData.endAt) <= new Date());
+      if (pollEnded) {
+        setShowResults(true);
+      }
+
+      await fetchUserBallot(pollData);
+    } catch (err) {
+      console.error("Error fetching poll:", err);
+      if (err.response?.status === 403) {
+        setError("restricted");
+        setRequiresLogin(err.response.data.requiresLogin || false);
+      } else if (err.response?.status === 404) {
+        setError("Poll not found");
+      } else {
+        setError("Failed to load poll");
+      }
+    } finally {
+      setLoading(false);
     }
-  }, [id, user]);
+  }, [fetchUserBallot, id]);
+
+  useEffect(() => {
+    if (id) {
+      loadPoll();
+    }
+  }, [id, loadPoll]);
 
   useEffect(() => {
     if (!poll?.endAt) return;
@@ -126,49 +145,21 @@ const PollDetails = ({ user }) => {
     return () => clearInterval(timer);
   }, [poll?.endAt]);
 
-  const handleVoteSubmitted = async (voteData) => {
-    try {
-      const refreshResponse = await axios.get(`${API_URL}/api/polls/${id}`, {
-        headers: getAuthHeaders(),
-      });
-
-      const updatedPollData = refreshResponse.data;
-
-      if (!updatedPollData.PollOptions && updatedPollData.pollOptions) {
-        updatedPollData.PollOptions = updatedPollData.pollOptions;
-      }
-      if (updatedPollData.PollOptions) {
-        updatedPollData.pollOptions = updatedPollData.PollOptions;
-      }
-      if (updatedPollData.Ballots) {
-        updatedPollData.ballots = updatedPollData.Ballots.map((ballot) => ({
-          ...ballot,
-          ballotRankings: ballot.BallotRankings || [],
-        }));
-      }
-
-      setPoll(updatedPollData);
-
-      if (updatedPollData.Ballots && user) {
-        const userBallotData = updatedPollData.Ballots.find(
-          (ballot) => ballot.user_id === user.id
-        );
-        if (userBallotData) {
-          setUserBallot(userBallotData);
-        }
-      }
-
-      setVoteSubmitted(true);
-      setShowResults(true);
-    } catch (error) {
-      console.error("Error refreshing poll data:", error);
-      setVoteSubmitted(true);
-      setShowResults(true);
-    }
+  const handleVoteSubmitted = async () => {
+    setVoteSubmitted(true);
+    await loadPoll();
+    setShowResults(true);
   };
 
-  const isPollActive = poll?.endAt ? new Date(poll.endAt) > new Date() : true;
-  const canVote = poll?.permissions?.canVote && isPollActive && !voteSubmitted;
+  const isPollActive =
+    poll?.status === "published" &&
+    poll?.isActive !== false &&
+    (poll?.endAt ? new Date(poll.endAt) > new Date() : true);
+
+  const hasNonRepeatVote = !poll?.allowAnonymous && hasVoted;
+  const canVote = poll?.permissions?.canVote && isPollActive && !hasNonRepeatVote;
+  const shouldShowResults = !isPollActive || showResults || voteSubmitted;
+  const totalVotes = result?.totalBallots ?? ballotCount ?? 0;
 
   if (loading) {
     return (
@@ -209,7 +200,7 @@ const PollDetails = ({ user }) => {
     );
   }
 
-  if (!poll.PollOptions || poll.PollOptions.length === 0) {
+  if (!poll.pollOptions || poll.pollOptions.length === 0) {
     return (
       <div className="poll-details-container">
         <div className="error-message">
@@ -292,13 +283,10 @@ const PollDetails = ({ user }) => {
           )}
 
           <div className="poll-info">
-            <p>📊 {poll.ballots?.length || 0} votes cast</p>
+            <p>📊 {totalVotes} votes cast</p>
             <p>
               <strong>Anonymous voting:</strong>{" "}
               {poll.allowAnonymous ? "Allowed" : "Not allowed"}
-            </p>
-            <p>
-              <strong>Total votes:</strong> {poll.ballots?.length || 0}
             </p>
             <p>
               <strong>Created:</strong>{" "}
@@ -306,25 +294,20 @@ const PollDetails = ({ user }) => {
             </p>
             <p>
               <strong>Created by:</strong>{" "}
-              {userLoading
-                ? "Loading..."
-                : master
-                  ? master.username
-                  : "Unknown"}
+              {poll.creator?.username || "Unknown"}
             </p>
           </div>
 
-          {/* Use VoteForm component for voting */}
           {canVote && (
             <VoteForm
               poll={poll}
               user={user}
               onVoteSubmitted={handleVoteSubmitted}
+              hasVoted={hasNonRepeatVote}
             />
           )}
 
-          {/* Show voting disabled message */}
-          {!canVote && !showResults && (
+          {!canVote && !shouldShowResults && (
             <div className="voting-disabled">
               <p>
                 {!user
@@ -346,13 +329,16 @@ const PollDetails = ({ user }) => {
             </div>
           )}
 
-          {/* Use IRVResults component for results */}
-          {poll.status === "published" && poll.ballots?.length > 0 && (
+          {shouldShowResults && result && (
             <div className="results-section">
               <h3>Results</h3>
-              <IRVResults poll={poll} />
+              {totalVotes === 0 ? (
+                <p>No ballots have been submitted yet.</p>
+              ) : (
+                <IRVResults poll={poll} result={result} />
+              )}
 
-              {!voteSubmitted && canVote && (
+              {canVote && isPollActive && (
                 <Button
                   variant="secondary"
                   onClick={() => setShowResults(false)}
@@ -364,7 +350,6 @@ const PollDetails = ({ user }) => {
             </div>
           )}
 
-          {/* Show user's vote if they voted */}
           {userBallot && userBallot.BallotRankings && (
             <div className="user-vote-section">
               <h4>Your Vote:</h4>

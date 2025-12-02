@@ -3,36 +3,22 @@ import axios from "axios";
 import { API_URL } from "../shared";
 import { Container, Row, Col, Form, Spinner, Alert, Card, Button } from "react-bootstrap";
 
-const VoteForm = ({ poll, user, onVoteSubmitted }) => {
+const VoteForm = ({ poll, user, onVoteSubmitted, hasVoted: hasVotedProp = false }) => {
   const [rankedOptions, setRankedOptions] = useState([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const [hasVoted, setHasVoted] = useState(false);
+  const [hasVoted, setHasVoted] = useState(hasVotedProp);
   const [checkingVoteStatus, setCheckingVoteStatus] = useState(true);
 
   useEffect(() => {
-    const checkIfUserHasVoted = () => {
-      if (poll.allowAnonymous) {
-        setCheckingVoteStatus(false);
-        setHasVoted(false);
-        return;
-      }
-
-      if (user && poll.ballots) {
-        const userBallot = poll.ballots.find(ballot => ballot.user_id === user.id);
-        if (userBallot) {
-          setHasVoted(true);
-        }
-      }
-
-      setCheckingVoteStatus(false);
-    };
-
-    if (poll) {
-      checkIfUserHasVoted();
+    if (poll.allowAnonymous) {
+      setHasVoted(false);
+    } else {
+      setHasVoted(!!hasVotedProp);
     }
-  }, [poll, user]);
+    setCheckingVoteStatus(false);
+  }, [poll, hasVotedProp]);
 
   const handleOptionClick = (option) => {
     const existingIndex = rankedOptions.findIndex(item => item.id === option.id);

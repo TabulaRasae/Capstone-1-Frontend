@@ -3,13 +3,14 @@ import axios from "axios";
 import PollCard from "./PollCard";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../shared";
-import { Container, Row, Col, Form, Spinner, Alert, Card, Button } from "react-bootstrap";
+import { Container, Row, Col, Form, Spinner, Alert, Button } from "react-bootstrap";
 
 const PollList = ({ user }) => {
   const [polls, setPolls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("active");
   const navigate = useNavigate();
 
   console.log(user);
@@ -73,11 +74,12 @@ const PollList = ({ user }) => {
         const token = localStorage.getItem('token');
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         
-        const response = await axios.get(`${API_URL}/api/polls`, { headers });
-        
-        const publishedPolls = response.data.filter(poll => poll.status === "published");
-        
-        setPolls(publishedPolls);
+        const response = await axios.get(`${API_URL}/api/polls?filter=${filter}`, { headers });
+        const normalizedPolls = response.data.map(poll => ({
+          ...poll,
+          pollOptions: poll.pollOptions || poll.PollOptions || []
+        }));
+        setPolls(normalizedPolls);
       } catch (err) {
         setError("Failed to fetch polls.");
         console.error("Error fetching polls:", err);
@@ -87,7 +89,7 @@ const PollList = ({ user }) => {
     };
   
     fetchPolls();
-  }, []);
+  }, [filter, user]);
 
   if (loading) {
     return (
@@ -119,11 +121,25 @@ const PollList = ({ user }) => {
   return (
 
     <Container className="py-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>All Polls</h2>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h2>Polls</h2>
         <div className="text-muted">
-          {polls.length} published poll{polls.length !== 1 ? 's' : ''}
+          {polls.length} poll{polls.length !== 1 ? 's' : ''} ({filter})
         </div>
+      </div>
+
+      <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
+        {["active", "ended", "all"].map((filterType) => (
+          <Button
+            key={filterType}
+            size="sm"
+            variant={filter === filterType ? "primary" : "outline-secondary"}
+            onClick={() => setFilter(filterType)}
+            className={filter === filterType ? "but-color" : ""}
+          >
+            {filterType.charAt(0).toUpperCase() + filterType.slice(1)}
+          </Button>
+        ))}
       </div>
       <Form.Group className="mb-4">
         <Form.Control 
@@ -196,7 +212,7 @@ const PollList = ({ user }) => {
       {filteredPolls.length > 0 && (
         <div className="text-center mt-5">
           <small className="text-muted">
-            Showing {filteredPolls.length} of {polls.length} published polls
+            Showing {filteredPolls.length} of {polls.length} {filter} poll{polls.length !== 1 ? "s" : ""}
           </small>
         </div>
 
