@@ -3,7 +3,6 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
 import { API_URL } from "../shared";
-import "./CSS/AuthStyles.css";
 
 const Login = ({ setUser }) => {
   const [formData, setFormData] = useState({
@@ -65,7 +64,7 @@ const Login = ({ setUser }) => {
 
       setUser(response.data.user);
 
-      navigate("/poll-list");
+      navigate("/polls");
     } catch (error) {
       console.error("Login error:", error);
       if (error.response?.data?.error) {

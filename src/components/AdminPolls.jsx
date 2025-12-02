@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { API_URL } from "../shared";
 import { useNavigate } from "react-router-dom";
-import "./CSS/AdminPolls.css";
 
 const AdminPolls = ({ user }) => {
   const [polls, setPolls] = useState([]);
@@ -181,7 +180,7 @@ const AdminPolls = ({ user }) => {
           <div className="error-message">
             <p>{error}</p>
           </div>
-          <button onClick={() => navigate("/poll-list")} className="back-btn">
+          <button onClick={() => navigate("/polls")} className="back-btn">
             Back to Home
           </button>
         </div>

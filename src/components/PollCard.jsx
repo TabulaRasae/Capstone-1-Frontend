@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Card, Button, Badge, Row, Col, Spinner, Container, Stack } from "react-bootstrap";
 import { API_URL } from "../shared";
-import "./CSS/PollCardStyles.css";
 
 const PollCard = ({ poll, onClick, onDuplicate, showDuplicateButton = true }) => {
   const [timeLeft, setTimeLeft] = useState("");
@@ -81,23 +80,15 @@ const PollCard = ({ poll, onClick, onDuplicate, showDuplicateButton = true }) =>
 
   return (
     <Card
-      className={`bg-colors mb-4 shadow-sm ${!isPollActive ? "opacity-75" : ""}`}
+      className={`bg-colors mb-4 shadow-sm h-[250px] overflow-hidden cursor-pointer ${!isPollActive ? "opacity-75" : ""}`}
       onClick={onClick}
-      style={{ cursor: "pointer", height: "250px", overflow: "hidden", backgroundColor: "#275068", background: "#275068 !important" }}
     >
       <Card.Body as={Stack} gap={3} className="d-flex flex-column h-100">
         <Stack gap={1}>
           <Card.Title className="text-color text-truncate">
             {poll.title}
           </Card.Title>
-          <Card.Text
-            style={{
-              minHeight: "50px",
-              maxHeight: "50px",
-              overflow: "hidden",
-              fontSize: "0.9rem",
-              color: "#041B15",
-            }}>
+          <Card.Text className="min-h-[50px] max-h-[50px] overflow-hidden text-sm text-white/80 leading-5">
             {poll.description}
           </Card.Text>
         </Stack>
@@ -109,7 +100,7 @@ const PollCard = ({ poll, onClick, onDuplicate, showDuplicateButton = true }) =>
               </Badge>
             </Col>
           </Row>
-          <Row className="align-itmes-center">
+          <Row className="align-items-center">
             <Col xs="auto" className="text-color small">
               by {creator ? `@${creator.username}` : <Spinner animation="border" size="sm" />}
             </Col>
@@ -134,19 +125,6 @@ const PollCard = ({ poll, onClick, onDuplicate, showDuplicateButton = true }) =>
                 </Button>
               </Col>
             )}
-            <Col xs="auto">
-              <Button
-                className="but-color"
-                size="sm"
-                variant="outline-secondary"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDuplicate();
-                }}
-              >
-                Duplicate
-              </Button>
-            </Col>
             <Col xs="auto">
               <Button
                 className="but-color"

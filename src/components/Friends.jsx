@@ -1,5 +1,4 @@
 import React from "react";
-import "./CSS/ProfileStyles.css";
 import { useParams, useNavigate } from "react-router-dom";
 import { API_URL } from "../shared";
 import { useState, useEffect } from "react";
@@ -160,7 +159,7 @@ const handleFollowToggle = async () => {
       <div className="profile-page">
         <div className="loading-container">
           <p>{error}</p>
-          <button onClick={() => navigate("/poll-list")} className="back-btn">
+          <button onClick={() => navigate("/polls")} className="back-btn">
             Back to Polls
           </button>
         </div>
@@ -173,7 +172,7 @@ const handleFollowToggle = async () => {
       <div className="profile-page">
         <div className="loading-container">
           <p>User not found</p>
-          <button onClick={() => navigate("/poll-list")} className="back-btn">
+          <button onClick={() => navigate("/polls")} className="back-btn">
             Back to Polls
           </button>
         </div>
@@ -232,7 +231,7 @@ const handleFollowToggle = async () => {
 
               <div className="profile-actions">
                 <button 
-                  onClick={() => navigate("/poll-list")}
+                  onClick={() => navigate("/polls")}
                   className="message-btn"
                 >
                   Back to Polls

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../shared";
 import { Container, Row, Col, Form, Spinner, Alert, Card, Button, InputGroup } from "react-bootstrap";
-import './CSS/PublicUserFinderStyles.css';
 
 const MyFriends = ({ user }) => {
   const [friends, setFriends] = useState([]);

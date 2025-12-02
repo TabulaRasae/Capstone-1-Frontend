@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
 import { createRoot } from "react-dom/client";
 import axios from "axios";
-import "./AppStyles.css";
+import "./index.css";
 import NavBar from "./components/NavBar";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { API_URL } from "./shared";
@@ -10,7 +11,6 @@ import { auth0Config } from "./auth0-config";
 
 import Login from "./components/Login";
 import Signup from "./components/Signup";
-import Home from "./components/Home";
 import NotFound from "./components/NotFound";
 import PublicUserFinder from "./components/PublicUserFinder";
 import Friends from "./components/Friends";
@@ -21,9 +21,10 @@ import UsersPage from "./components/UsersPage";
 import UserCard from "./components/UserCard";
 import DraftPoll from "./components/DraftPoll";
 import PollDetails from "./components/PollDetails";
-import AboutUs from "./components/AboutUs";
 import MyFriends from "./components/MyFriends";
 import AdminPolls from "./components/AdminPolls";
+import AboutUs from "./components/AboutUs";
+import Footer from "./components/Footer";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -147,7 +148,7 @@ const App = () => {
   };
 
   return (
-    <div>
+    <div className="app-shell">
       <NavBar user={user} onLogout={handleLogout} />
       <div className="app">
         <Routes>
@@ -156,7 +157,7 @@ const App = () => {
           <Route path="/signup" element={<Signup setUser={setUser} />} />
           
           {/* Home route */}
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<AboutUs />} />
           
           {/* Profile routes */}
           <Route path="/me" element={<Profile user={user} authLoading={loading} />} />
@@ -165,7 +166,7 @@ const App = () => {
           
           {/* Poll routes */}
           <Route path="/new-poll" element={<NewPoll user={user} />} />
-          <Route path="/poll-list" element={<PollList user={user} />} />
+          <Route path="/polls" element={<PollList user={user} />} />
           <Route path="/polls/:id" element={<PollDetails user={user} />} />
           
           {/* Draft routes */}
@@ -178,13 +179,13 @@ const App = () => {
           <Route path="/my-friends" element={<MyFriends user={user}/>} />
           
           {/* Other pages */}
-          <Route path="/about-us" element={<AboutUs />} />
           <Route path="/admin/users" element={<UsersPage user={user} />} />
           <Route path="/admin/polls" element={<AdminPolls user={user} />} />
           {/* 404 route - must be last */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
+      <Footer />
     </div>
   );
 };

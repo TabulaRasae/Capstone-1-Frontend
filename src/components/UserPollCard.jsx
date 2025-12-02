@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import './CSS/UserPollCardStyles.css';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Card, Button, Badge, Spinner, Stack, Row, Col } from "react-bootstrap";
@@ -115,14 +114,13 @@ const PollCard = ({ poll, onClick, onDelete }) => {
   return (
     <Card
       onClick={onClick}
-      className={`user-poll-card h-100 ${!isPollActive ? 'poll-ended' : ''}`}
-      style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', backgroundColor: "#275068" }}
+      className={`user-poll-card h-100 cursor-pointer ${!isPollActive ? 'poll-ended' : ''}`}
     >
-      <Card.Body className="d-flex flex-column flex-grow-1">
+      <Card.Body className="d-flex flex-column flex-grow-1 gap-3">
         <Card.Title className="mb-2 custom-title-color">{poll.title}</Card.Title>
 
         {poll.description ? (
-          <Card.Text className="flex-grow-1" style={{ minHeight: '50px', overflow: 'hidden' }}>
+          <Card.Text className="flex-grow-1 min-h-[50px] overflow-hidden text-ink-700">
             {poll.description}
           </Card.Text>
         ) : (
@@ -144,7 +142,7 @@ const PollCard = ({ poll, onClick, onDelete }) => {
                   e.stopPropagation();
                   handleDelete(e);
                 }}
-                style={{ minWidth: '75px' }}
+                className="min-w-[90px]"
               >
                 Delete
               </Button>
@@ -152,14 +150,13 @@ const PollCard = ({ poll, onClick, onDelete }) => {
           </Col>
           <Col xs="auto" className="ms-auto">
             <Button
-              className="but-color"
+              className="but-color min-w-[110px]"
               variant="outline-secondary"
               size="sm"
               onClick={(e) => {
                 e.stopPropagation();
                 copyToClipboard(e);
               }}
-              style={{ minWidth: '90px' }}
             >
               {copied ? '✓ Copied!' : '📋 Copy Link'}
             </Button>

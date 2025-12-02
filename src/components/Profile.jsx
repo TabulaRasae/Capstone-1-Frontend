@@ -1,5 +1,4 @@
 import React from "react";
-import "./CSS/ProfileStyles.css";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../shared";
 import { useState, useEffect } from "react";

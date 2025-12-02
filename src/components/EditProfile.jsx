@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { API_URL } from "../shared";
-import "./CSS/EditProfileStyles.css";
 
 const EditProfile = ({ user, onProfileUpdated, onCancel }) => {
   const [formData, setFormData] = useState({

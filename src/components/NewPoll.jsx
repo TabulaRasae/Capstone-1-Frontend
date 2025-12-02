@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { API_URL } from "../shared";
 import UserSearchInput from "./UserSearchInput";
 import { Card, Button, Badge, Spinner, Stack, Row, Col, Form, Container } from "react-bootstrap";
-import "./CSS/NewPoll.css";
 
 const NewPoll = ({ user }) => {
   const [title, setTitle] = useState("");
@@ -149,7 +148,7 @@ const NewPoll = ({ user }) => {
           alert("Poll saved as draft successfully!");
         }
         
-        navigate("/poll-list");
+        navigate("/polls");
       } catch (err) {
         const action = isDraft ? "save draft" : "publish poll";
         setError(`Failed to ${action}.`);
@@ -321,7 +320,7 @@ return (
     <Button
       className="but-color"
       variant="secondary"
-      onClick={() => navigate("/poll-list")}
+      onClick={() => navigate("/polls")}
       disabled={isSubmitting}
     >
       Cancel

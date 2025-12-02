@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
 import { API_URL } from "../shared";
-import "./CSS/AuthStyles.css";
 
 const Signup = ({ setUser, onAuth0Login }) => {
   const [formData, setFormData] = useState({

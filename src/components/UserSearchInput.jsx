@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { API_URL } from "../shared";
-import "./CSS/UserSearchInputStyles.css";
 
 const UserSearchInput = ({ selectedUsers, onUsersChange, placeholder = "Search users...", currentUser = null }) => {
   const [searchTerm, setSearchTerm] = useState("");

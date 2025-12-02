@@ -5,7 +5,6 @@ import { API_URL } from "../shared";
 import RestrictedAccess from "./RestrictedAccess";
 import VoteForm from "./VoteForm";
 import IRVResults from "./IRVResults";
-import "./CSS/PollDetailsStyles.css";
 import { Form, Button, Container, Row, Col, Card, ListGroup, Alert } from "react-bootstrap";
 
 const PollDetails = ({ user }) => {
@@ -189,7 +188,7 @@ const PollDetails = ({ user }) => {
         <div className="error-message">
           <h2>Error</h2>
           <p>{error}</p>
-          <button onClick={() => navigate("/poll-list")} className="back-btn">
+          <button onClick={() => navigate("/polls")} className="back-btn">
             Back to Polls
           </button>
         </div>
@@ -202,7 +201,7 @@ const PollDetails = ({ user }) => {
       <div className="poll-details-container">
         <div className="error-message">
           <h2>Poll not found</h2>
-          <button onClick={() => navigate("/poll-list")} className="back-btn">
+          <button onClick={() => navigate("/polls")} className="back-btn">
             Back to Polls
           </button>
         </div>
@@ -216,7 +215,7 @@ const PollDetails = ({ user }) => {
         <div className="error-message">
           <h2>Invalid Poll</h2>
           <p>This poll has no options available.</p>
-          <button onClick={() => navigate("/poll-list")} className="back-btn">
+          <button onClick={() => navigate("/polls")} className="back-btn">
             Back to Polls
           </button>
         </div>
@@ -229,7 +228,7 @@ const PollDetails = ({ user }) => {
       <div className="poll-header">
         <Button
           variant="secondary"
-          onClick={() => navigate("/poll-list")}
+          onClick={() => navigate("/polls")}
           className="but-color"
         >
           ← Back to Polls

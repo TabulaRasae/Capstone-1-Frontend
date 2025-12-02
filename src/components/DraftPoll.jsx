@@ -4,7 +4,6 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import { API_URL } from "../shared";
 import UserSearchInput from "./UserSearchInput";
 import { Form, Button, Container, Row, Col, Card, ListGroup, Alert } from "react-bootstrap";
-import "./CSS/NewPoll.css";
 
 
 const DraftPoll = ({ user }) => {
@@ -227,7 +226,7 @@ useEffect(() => {
           alert("Draft saved successfully!");
           setError(""); 
         } else {
-          navigate("/poll-list");
+          navigate("/polls");
         }
       } catch (err) {
         console.error(`Failed to ${action}:`, err);

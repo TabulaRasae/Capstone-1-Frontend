@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import "./CSS/Dropdown.css";
-import "./CSS/NavBarStyles.css";
 
 const Dropdown = () => {
     const [open, setOpen] = useState(false);
@@ -12,7 +10,7 @@ const Dropdown = () => {
 
     const options = [
         { name: 'Create Poll', path: '/new-poll'},
-        { name: 'Poll List', path: '/poll-list'},
+        { name: 'Poll List', path: '/polls'},
         { name: 'Published Polls', path: '/'},
         { name: 'Drafted Polls', path: '/edit-draft'},
     ];

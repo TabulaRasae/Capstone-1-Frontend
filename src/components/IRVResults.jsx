@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { Bar } from "react-chartjs-2";
-import "./CSS/IRVResults.css";
 import {
   Chart as ChartJS,
   CategoryScale,

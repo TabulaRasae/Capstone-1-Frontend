@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import "./CSS/RestrictedAccessStyles.css";
 
 const RestrictedAccess = ({ requiresLogin = false, message = "You don't have permission to view this poll" }) => {
   const navigate = useNavigate();
@@ -39,7 +38,7 @@ const RestrictedAccess = ({ requiresLogin = false, message = "You don't have per
               <li>Be specifically granted access by the creator</li>
             </ul>
             <button 
-              onClick={() => navigate("/poll-list")}
+              onClick={() => navigate("/polls")}
               className="back-btn"
             >
               Back to Polls

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { API_URL } from "../shared";
-import "./CSS/VoteFormStyles.css";
 import { Container, Row, Col, Form, Spinner, Alert, Card, Button } from "react-bootstrap";
 
 const VoteForm = ({ poll, user, onVoteSubmitted }) => {

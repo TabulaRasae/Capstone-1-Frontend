@@ -4,8 +4,6 @@ import PollCard from "./PollCard";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../shared";
 import { Container, Row, Col, Form, Spinner, Alert, Card, Button } from "react-bootstrap";
-import "./CSS/PollList.css";
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 const PollList = ({ user }) => {
   const [polls, setPolls] = useState([]);
@@ -65,7 +63,7 @@ const PollList = ({ user }) => {
   };
 
   const handleUserClick = (id) => {
-    navigate(`/polls/${id}`);
+      navigate(`/polls/${id}`);
   };
 
   useEffect(() => {

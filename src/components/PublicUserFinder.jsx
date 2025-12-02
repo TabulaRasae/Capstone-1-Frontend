@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../shared";
 import { Container, Form, InputGroup, Button, Row, Col, Card, Spinner } from "react-bootstrap";
-import './CSS/PublicUserFinderStyles.css';
 
 const PublicUserFinder = ({ user }) => {
   const [searchTerm, setSearchTerm] = useState("");

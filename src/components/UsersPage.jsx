@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { API_URL } from "../shared";
 import { useNavigate } from "react-router-dom";
-import "./CSS/UsersPage.css";
 
 const UsersPage = ({ user }) => {
   const [users, setUsers] = useState([]);
@@ -88,7 +87,7 @@ const UsersPage = ({ user }) => {
       <div className="users-page">
         <h2>Admin Panel</h2>
         <p className="error-message">{error}</p>
-        <button onClick={() => navigate("/poll-list")}>Back to Home</button>
+        <button onClick={() => navigate("/polls")}>Back to Home</button>
       </div>
     );
   }
