@@ -175,6 +175,10 @@ const PollDetails = ({ user }) => {
   const hasNonRepeatVote = !poll?.allowAnonymous && hasVoted;
   const canVote = poll?.permissions?.canVote && isPollActive && !hasNonRepeatVote;
   const shouldShowResults = !isPollActive || showResults || voteSubmitted;
+  const hasResultData =
+    !!result &&
+    ((result.PollResultValues && result.PollResultValues.length > 0) ||
+      (result.pollResultValues && result.pollResultValues.length > 0));
   const totalVotes = result?.totalBallots ?? ballotCount ?? 0;
 
   if (loading) {
@@ -342,6 +346,14 @@ const PollDetails = ({ user }) => {
                   Show Results
                 </button>
               ) : null}
+            </div>
+          )}
+
+          {hasResultData && !shouldShowResults && (
+            <div className="text-center my-3">
+              <Button variant="outline-primary" onClick={() => setShowResults(true)}>
+                Show Results
+              </Button>
             </div>
           )}
 
