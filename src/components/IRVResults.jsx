@@ -115,7 +115,11 @@ const IRVResults = ({ poll, result }) => {
   };
 
   if (!result || normalized.length === 0) {
-    return <p>No results available yet.</p>;
+    return (
+      <div className="irv-results">
+        <p>No results available yet.</p>
+      </div>
+    );
   }
 
   return (

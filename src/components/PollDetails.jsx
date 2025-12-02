@@ -86,6 +86,22 @@ const PollDetails = ({ user }) => {
       }
 
       await fetchUserBallot(pollData);
+
+      // Fallback: if no stored result came back, fetch from results endpoint to populate charts
+      if (!pollData.result) {
+        try {
+          const resultsResp = await axios.get(`${API_URL}/api/polls/${id}/results`, {
+            headers: getAuthHeaders(),
+          });
+          if (resultsResp.data?.result || resultsResp.data?.PollResult) {
+            const resolvedResult = resultsResp.data.result || resultsResp.data.PollResult;
+            setResult(resolvedResult);
+            setBallotCount(resolvedResult.totalBallots || 0);
+          }
+        } catch (resultsErr) {
+          console.error("Error fetching poll results directly:", resultsErr);
+        }
+      }
     } catch (err) {
       console.error("Error fetching poll:", err);
       if (err.response?.status === 403) {
