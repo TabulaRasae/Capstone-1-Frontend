@@ -127,7 +127,6 @@ const NavBar = ({ user, onLogout }) => {
               <>
                 <Nav.Link as={Link} to="/polls" className="brand-text me-2" onClick={() => setExpanded(false)}>Public Polls</Nav.Link>
                 <Nav.Link as={Link} to="/login" className="brand-text me-2" onClick={() => setExpanded(false)}>Login</Nav.Link>
-                <Nav.Link as={Link} to="/signup" className="brand-text me-2" onClick={() => setExpanded(false)}>Sign Up</Nav.Link>
                 <Nav.Link as={Link} to="/new-poll" className="but-color nav-cta" onClick={() => setExpanded(false)}>
                   Create a poll
                 </Nav.Link>
