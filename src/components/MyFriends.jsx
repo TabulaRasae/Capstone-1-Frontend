@@ -2,13 +2,18 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../shared";
-import { Container, Row, Col, Form, Spinner, Alert, Card, Button, InputGroup } from "react-bootstrap";
+import { Container, Row, Col, Form, Spinner, Card, Button, InputGroup } from "react-bootstrap";
 
 const MyFriends = ({ user }) => {
   const [friends, setFriends] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [friendSearchTerm, setFriendSearchTerm] = useState("");
+  const [userSearchTerm, setUserSearchTerm] = useState("");
+  const [userSearchResults, setUserSearchResults] = useState([]);
+  const [isSearchingUsers, setIsSearchingUsers] = useState(false);
+  const [hasSearchedUsers, setHasSearchedUsers] = useState(false);
+  const [userSearchError, setUserSearchError] = useState(null);
   const navigate = useNavigate();
 
   const getAuthHeaders = () => {
@@ -101,28 +106,80 @@ const MyFriends = ({ user }) => {
   };
 
   const handleUserClick = (userId) => {
+    if (user && userId === user.id) {
+      navigate("/me");
+      return;
+    }
     navigate(`/users/${userId}`);
   };
 
-  const handleSearchInputChange = (e) => {
-    setSearchTerm(e.target.value);
+  const handleFriendSearchInputChange = (e) => {
+    setFriendSearchTerm(e.target.value);
   };
 
-  const clearSearch = () => {
-    setSearchTerm("");
+  const clearFriendSearch = () => {
+    setFriendSearchTerm("");
+  };
+
+  const handleUserSearchInputChange = (e) => {
+    setUserSearchTerm(e.target.value);
+  };
+
+  const clearUserSearch = () => {
+    setUserSearchTerm("");
+    setHasSearchedUsers(false);
+    setUserSearchResults([]);
+    setUserSearchError(null);
   };
 
   const filteredFriends = friends.filter(friend => {
-    if (!searchTerm) return true;
+    if (!friendSearchTerm) return true;
 
-    const searchLower = searchTerm.toLowerCase();
+    const searchLower = friendSearchTerm.toLowerCase();
     const username = (friend.username || friend.displayName || '').toLowerCase();
     const bio = (friend.bio || '').toLowerCase();
 
     return username.includes(searchLower) || bio.includes(searchLower);
   });
 
-  const renderStatusMessage = () => {
+  useEffect(() => {
+    const searchUsers = async () => {
+      if (userSearchTerm.length < 2) {
+        setUserSearchResults([]);
+        setHasSearchedUsers(false);
+        setUserSearchError(null);
+        return;
+      }
+
+      setIsSearchingUsers(true);
+      setHasSearchedUsers(true);
+
+      try {
+        const response = await axios.get(
+          `${API_URL}/api/polls/search/users?q=${encodeURIComponent(userSearchTerm)}`,
+          { headers: getAuthHeaders() }
+        );
+
+        const filteredResults = response.data.filter(
+          searchUser => user ? searchUser.id !== user.id : true
+        );
+
+        setUserSearchResults(filteredResults);
+        setUserSearchError(null);
+      } catch (searchError) {
+        console.error("Error searching users:", searchError);
+        setUserSearchResults([]);
+        setUserSearchError("Failed to search users. Please try again.");
+      } finally {
+        setIsSearchingUsers(false);
+      }
+    };
+
+    const timeoutId = setTimeout(searchUsers, 300);
+    return () => clearTimeout(timeoutId);
+  }, [userSearchTerm, user]);
+
+  const renderFriendsStatusMessage = () => {
     if (isLoading) {
       return <p className="status-message">Loading friends...</p>;
     }
@@ -138,18 +195,18 @@ const MyFriends = ({ user }) => {
     if (friends.length === 0) {
       return (
         <p className="status-message">
-          You haven't connected with any users yet. Use the "Find Users" page to discover and follow other users!
+          You haven't connected with any users yet. Use the "Find Friends" search to discover and follow users!
         </p>
       );
     }
 
-    if (searchTerm && filteredFriends.length === 0) {
+    if (friendSearchTerm && filteredFriends.length === 0) {
       return (
         <p className="status-message">
-          No friends found matching "{searchTerm}".
+          No friends found matching "{friendSearchTerm}".
           <button
             className="clear-search-btn"
-            onClick={clearSearch}
+            onClick={clearFriendSearch}
             style={{ marginLeft: '8px', background: 'none', border: 'none', color: '#1da1f2', cursor: 'pointer', textDecoration: 'underline' }}
           >
             Clear search
@@ -158,15 +215,39 @@ const MyFriends = ({ user }) => {
       );
     }
 
-    if (searchTerm && filteredFriends.length > 0) {
+    if (friendSearchTerm && filteredFriends.length > 0) {
       return (
         <p className="status-message">
-          Showing {filteredFriends.length} friend{filteredFriends.length === 1 ? '' : 's'} matching "{searchTerm}"
+          Showing {filteredFriends.length} friend{filteredFriends.length === 1 ? '' : 's'} matching "{friendSearchTerm}"
         </p>
       );
     }
 
     return <p className="status-message">Showing all {friends.length} friend{friends.length === 1 ? '' : 's'}</p>;
+  };
+
+  const renderUserSearchStatusMessage = () => {
+    if (isSearchingUsers) {
+      return <p className="status-message">Searching...</p>;
+    }
+
+    if (userSearchTerm.length > 0 && userSearchTerm.length < 2) {
+      return <p className="status-message">Type at least 2 characters to search</p>;
+    }
+
+    if (!hasSearchedUsers && userSearchTerm.length === 0) {
+      return <p className="status-message">Start typing to find users</p>;
+    }
+
+    if (hasSearchedUsers && userSearchResults.length === 0 && userSearchTerm.length >= 2 && !userSearchError) {
+      return <p className="status-message">No users found.</p>;
+    }
+
+    if (userSearchError) {
+      return <p className="status-message error-message">{userSearchError}</p>;
+    }
+
+    return <p className="status-message">&nbsp;</p>;
   };
 
   const getRelationshipBadge = (relationship) => {
@@ -188,6 +269,74 @@ const MyFriends = ({ user }) => {
 
   return (
     <Container className="block py-4">
+      <div className="mb-5">
+        <h2 className="text-color text-center mb-4">Find Friends</h2>
+
+        <Form className="mb-3">
+          <InputGroup className="mx-auto" style={{ maxWidth: "500px" }}>
+            <Form.Control
+              type="text"
+              placeholder="Search users by username..."
+              value={userSearchTerm}
+              onChange={handleUserSearchInputChange}
+            />
+            {userSearchTerm && (
+              <Button variant="outline-secondary" onClick={clearUserSearch} aria-label="Clear user search">
+                ✕
+              </Button>
+            )}
+            {isSearchingUsers && (
+              <InputGroup.Text aria-label="Searching users">
+                <Spinner animation="border" size="sm" />
+              </InputGroup.Text>
+            )}
+          </InputGroup>
+        </Form>
+
+        <div className="text-center mb-3">
+          {renderUserSearchStatusMessage()}
+        </div>
+
+        <Row className="justify-content-center">
+          {userSearchResults.length > 0 && !userSearchError && userSearchResults.map(searchUser => (
+            <Col
+              key={searchUser.id}
+              xs={12}
+              sm={10}
+              md={8}
+              lg={6}
+              className="mb-3"
+            >
+              <Card
+                className="poll-card"
+                onClick={() => handleUserClick(searchUser.id)}
+                style={{ cursor: "pointer" }}
+              >
+                <Card.Body className="d-flex align-items-start">
+                  <img
+                    src={
+                      searchUser.imageUrl ||
+                      "https://t3.ftcdn.net/jpg/05/16/27/58/360_F_516275801_f3Fsp17x6HQK0xQgDQEELoTuERO4SsWV.jpg"
+                    }
+                    alt={`${searchUser.username}'s profile`}
+                    className="me-3 rounded-circle"
+                    style={{ width: "50px", height: "50px", objectFit: "cover" }}
+                  />
+                  <div className="flex-grow-1">
+                    <Card.Title className="poll-title mb-1">{searchUser.username}</Card.Title>
+                    {searchUser.bio && (
+                      <Card.Text className="user-bio text-muted" style={{ fontSize: "14px" }}>
+                        {searchUser.bio}
+                      </Card.Text>
+                    )}
+                  </div>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </div>
+
       <h2 className="text-color text-center mb-4">My Friends ({friends.length})</h2>
 
       <Form className="mb-3">
@@ -195,18 +344,18 @@ const MyFriends = ({ user }) => {
           <Form.Control
             type="text"
             placeholder="Search your friends by username or bio..."
-            value={searchTerm}
-            onChange={handleSearchInputChange}
+            value={friendSearchTerm}
+            onChange={handleFriendSearchInputChange}
           />
-          {searchTerm && (
-            <Button variant="outline-secondary" onClick={clearSearch}>
+          {friendSearchTerm && (
+            <Button variant="outline-secondary" onClick={clearFriendSearch}>
               ✕
             </Button>
           )}
         </InputGroup>
         {friends.length > 0 && (
           <div className="text-center text-muted mt-2">
-            {searchTerm ? (
+            {friendSearchTerm ? (
               <span>{filteredFriends.length} of {friends.length} friends</span>
             ) : (
               <span>{friends.length} total friends</span>
@@ -216,7 +365,7 @@ const MyFriends = ({ user }) => {
       </Form>
 
       <div className="text-center mb-3">
-        {renderStatusMessage()}
+        {renderFriendsStatusMessage()}
       </div>
 
       <Row className="justify-content-center">
@@ -251,7 +400,7 @@ const MyFriends = ({ user }) => {
         ))}
 
         {/* Empty state when no search results */}
-        {searchTerm && filteredFriends.length === 0 && friends.length > 0 && (
+        {friendSearchTerm && filteredFriends.length === 0 && friends.length > 0 && (
           <Col xs={12} className="text-center text-muted py-4">
             <p>No friends match your search criteria.</p>
             <p>Try a different search term or browse all your friends.</p>

@@ -12,7 +12,6 @@ import { auth0Config } from "./auth0-config";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import NotFound from "./components/NotFound";
-import PublicUserFinder from "./components/PublicUserFinder";
 import Friends from "./components/Friends";
 import Profile from "./components/Profile";
 import NewPoll from "./components/NewPoll";
@@ -175,7 +174,7 @@ const App = () => {
           
           {/* User/Friends routes */}
           <Route path="/users" element={<UsersPage user={user}/>} />
-          <Route path="/search-friends" element={<PublicUserFinder currentUser={user} />} />
+          <Route path="/search-friends" element={<MyFriends user={user}/>} />
           <Route path="/my-friends" element={<MyFriends user={user}/>} />
           
           {/* Other pages */}
